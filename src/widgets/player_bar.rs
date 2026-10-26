@@ -275,6 +275,11 @@ impl LioPlayerBar {
         } else {
             "media-playback-start-symbolic"
         });
+        if playing {
+            button.remove_css_class("play-icon");
+        } else {
+            button.add_css_class("play-icon");
+        }
         button.set_tooltip_text(Some(&label));
         button.update_property(&[gtk::accessible::Property::Label(&label)]);
     }

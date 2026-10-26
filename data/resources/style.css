@@ -126,6 +126,12 @@ playerbar {
   font-feature-settings: "tnum";
 }
 
+/* The play triangle's weight sits left of its bounding box's centre; nudge it right so
+   it looks centred in the round button. */
+button.play-icon > image {
+  transform: translateX(1.5px);
+}
+
 .large-transport {
   min-width: 48px;
   min-height: 48px;
