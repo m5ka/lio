@@ -18,6 +18,7 @@ pub mod pages;
 pub mod player_bar;
 pub mod preferences;
 pub mod queue_sidebar;
+pub mod seek_scale;
 pub mod spectrum_levels;
 pub mod storage;
 pub mod tint;

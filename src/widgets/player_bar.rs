@@ -1,6 +1,6 @@
 //! Persistent player bar: cover, title/artist, transport, seek, volume.
 
-use std::cell::{Cell, RefCell};
+use std::cell::{OnceCell, RefCell};
 
 use adw::subclass::prelude::*;
 use gettextrs::gettext;
@@ -11,6 +11,7 @@ use crate::covers::SIZE_ROW;
 use crate::models::format_duration;
 use crate::playback_controller::PlaybackController;
 use crate::widgets::cover_view;
+use crate::widgets::seek_scale::SeekScale;
 
 mod imp {
     use super::*;
@@ -51,7 +52,7 @@ mod imp {
         pub controller: RefCell<Option<PlaybackController>>,
         pub cancellable: RefCell<Option<gio::Cancellable>>,
         pub accent: RefCell<Option<crate::widgets::tint::Tint>>,
-        pub updating: Cell<bool>,
+        pub seek: OnceCell<SeekScale>,
     }
 
     #[glib::object_subclass]
@@ -126,18 +127,27 @@ impl LioPlayerBar {
             move |c| bar.update_position(c.position_ms(), c.duration_ms())
         ));
 
-        // Seek when the user moves the scale (not when we update it).
-        imp.seek_adjustment.connect_value_changed(glib::clone!(
-            #[weak(rename_to = bar)]
-            self,
-            move |adj| {
-                if !bar.imp().updating.get()
-                    && let Some(c) = bar.imp().controller.borrow().as_ref()
-                {
-                    c.seek_ms((adj.value() * 1000.0) as u64);
+        let seek = SeekScale::attach(
+            &imp.seek_scale,
+            glib::clone!(
+                #[weak(rename_to = bar)]
+                self,
+                move |secs| bar
+                    .imp()
+                    .position_label
+                    .set_label(&format_duration(secs as i64))
+            ),
+            glib::clone!(
+                #[weak(rename_to = bar)]
+                self,
+                move |secs| {
+                    if let Some(c) = bar.imp().controller.borrow().as_ref() {
+                        c.seek_ms((secs * 1000.0) as u64);
+                    }
                 }
-            }
-        ));
+            ),
+        );
+        let _ = imp.seek.set(seek);
 
         controller
             .bind_property("volume", &imp.volume_adjustment.get(), "value")
@@ -286,15 +296,17 @@ impl LioPlayerBar {
 
     fn update_position(&self, position_ms: u64, duration_ms: u64) {
         let imp = self.imp();
-        imp.updating.set(true);
+        let dur = format_duration((duration_ms / 1000) as i64);
+        imp.duration_label.set_label(&dur);
         imp.seek_adjustment
             .set_upper((duration_ms as f64 / 1000.0).max(1.0));
+        // Leave knob and label where the user is dragging them.
+        if imp.seek.get().is_some_and(SeekScale::is_scrubbing) {
+            return;
+        }
         imp.seek_adjustment.set_value(position_ms as f64 / 1000.0);
-        imp.updating.set(false);
         let pos = format_duration((position_ms / 1000) as i64);
-        let dur = format_duration((duration_ms / 1000) as i64);
         imp.position_label.set_label(&pos);
-        imp.duration_label.set_label(&dur);
         imp.seek_scale
             .update_property(&[gtk::accessible::Property::ValueText(
                 &gettext("{} of {}")

@@ -69,6 +69,9 @@ struct Shared {
     next_provider: Mutex<Option<NextProvider>>,
     /// Set when playback is requested; cleared by the first buffer reaching the sink.
     latency_start: Mutex<Option<Instant>>,
+    /// Latest seek target asked for while an earlier seek was still in flight; issued
+    /// when that one completes (see [`Player::seek_ms`]).
+    pending_seek: Mutex<Option<u64>>,
 }
 
 /// How often a fade updates the volume.
@@ -141,6 +144,7 @@ impl Player {
             next_uri: Mutex::new(None),
             next_provider: Mutex::new(None),
             latency_start: Mutex::new(None),
+            pending_seek: Mutex::new(None),
         });
 
         if let Some(pad) = sink.static_pad("sink") {
@@ -244,10 +248,11 @@ impl Player {
     /// Delivers [`PlayerEvent`]s on the thread-default GLib main context.
     pub fn connect_events<F: Fn(PlayerEvent) + 'static>(&self, f: F) {
         let playbin = self.playbin.clone();
+        let shared = self.shared.clone();
         let guard = self
             .bus()
             .add_watch_local(move |_, msg| {
-                if let Some(event) = translate(&playbin, msg) {
+                if let Some(event) = translate(&playbin, &shared, msg) {
                     f(event);
                 }
                 gst::glib::ControlFlow::Continue
@@ -258,7 +263,7 @@ impl Player {
 
     /// Converts one bus message into an event (for callers that poll the bus themselves).
     pub fn translate_message(&self, msg: &gst::Message) -> Option<PlayerEvent> {
-        translate(&self.playbin, msg)
+        translate(&self.playbin, &self.shared, msg)
     }
 
     /// The URI used for the next gapless switch, or `None` to end after the current track.
@@ -275,6 +280,7 @@ impl Player {
     pub fn play_uri(&self, uri: &str, start_ms: Option<u64>, paused: bool) -> Result<(), Error> {
         self.reset_fade();
         self.clear_spectrum();
+        self.shared.pending_seek.lock().unwrap().take();
         self.playbin.set_state(gst::State::Ready)?;
         self.apply_replaygain_mode();
         self.playbin.set_property("uri", uri);
@@ -319,6 +325,7 @@ impl Player {
         self.set_next_uri(None);
         self.reset_fade();
         self.clear_spectrum();
+        self.shared.pending_seek.lock().unwrap().take();
         let _ = self.playbin.set_state(gst::State::Null);
     }
 
@@ -421,15 +428,18 @@ impl Player {
             .map(|t| t.mseconds())
     }
 
+    /// Seeks to `ms`. While an earlier seek (or state change) is still completing, only
+    /// the latest target is kept and issued once it's done: flushing again and again
+    /// (dragging the seek bar, holding a seek key) restarts every download and decoder
+    /// mid-way and can leave the stream broken.
     pub fn seek_ms(&self, ms: u64) -> bool {
-        // Not ACCURATE: without a seek table (most MP3s, many FLACs) the parser would then
-        // read every frame from its last indexed position up to the target, which on a
-        // track that is still streaming means waiting for the download to get there.
-        // Audio frames are short, so a plain seek lands within a few tens of ms anyway.
         self.clear_spectrum();
-        self.playbin
-            .seek_simple(gst::SeekFlags::FLUSH, gst::ClockTime::from_mseconds(ms))
-            .is_ok()
+        let (ret, _, _) = self.playbin.state(gst::ClockTime::ZERO);
+        if ret == Ok(gst::StateChangeSuccess::Async) {
+            *self.shared.pending_seek.lock().unwrap() = Some(ms);
+            return true;
+        }
+        seek(&self.playbin, ms)
     }
 
     /// Turns spectrum analysis on or off (off by default; it costs an FFT per frame).
@@ -581,9 +591,26 @@ impl Drop for Player {
     }
 }
 
-fn translate(playbin: &gst::Element, msg: &gst::Message) -> Option<PlayerEvent> {
+/// Not ACCURATE: without a seek table (most MP3s, many FLACs) the parser would then
+/// read every frame from its last indexed position up to the target, which on a track
+/// that is still streaming means waiting for the download to get there. Audio frames
+/// are short, so a plain seek lands within a few tens of ms anyway.
+fn seek(playbin: &gst::Element, ms: u64) -> bool {
+    playbin
+        .seek_simple(gst::SeekFlags::FLUSH, gst::ClockTime::from_mseconds(ms))
+        .is_ok()
+}
+
+fn translate(playbin: &gst::Element, shared: &Shared, msg: &gst::Message) -> Option<PlayerEvent> {
     use gst::MessageView;
     match msg.view() {
+        MessageView::AsyncDone(_) if msg.src() == Some(playbin.upcast_ref()) => {
+            // The seek in flight has landed: go on to the latest target asked for since.
+            if let Some(ms) = shared.pending_seek.lock().unwrap().take() {
+                seek(playbin, ms);
+            }
+            None
+        }
         MessageView::StateChanged(change) if msg.src() == Some(playbin.upcast_ref()) => {
             let state = match change.current() {
                 gst::State::Playing => PlayerState::Playing,

@@ -3,7 +3,7 @@
 //! replaces the window's usual content (sidebars and player bar), see
 //! [`LioWindow::show_now_playing`].
 
-use std::cell::{Cell, RefCell};
+use std::cell::{Cell, OnceCell, RefCell};
 use std::rc::Rc;
 
 use adw::prelude::*;
@@ -16,6 +16,7 @@ use crate::covers::SIZE_FULL;
 use crate::lyrics::Lyrics;
 use crate::models::format_duration;
 use crate::playback_controller::PlaybackController;
+use crate::widgets::seek_scale::SeekScale;
 use crate::widgets::{LioWindow, cover_view, navigate, pages::album_page::set_star_icon};
 
 /// Tallest the lyrics panel gets beside the cover (the cover is at most 640 px).
@@ -93,7 +94,7 @@ mod imp {
         pub handlers: RefCell<Vec<(glib::Object, glib::SignalHandlerId)>>,
         pub cancellable: RefCell<Option<gio::Cancellable>>,
         pub tint: RefCell<Option<gtk::CssProvider>>,
-        pub updating: Cell<bool>,
+        pub seek: OnceCell<SeekScale>,
         pub narrow: Cell<bool>,
         /// Track the lyrics belong to; guards against late results for a skipped track.
         pub lyrics_track: RefCell<Option<String>>,
@@ -442,17 +443,24 @@ impl LioNowPlaying {
         imp.handlers.replace(handlers);
         // Opening the screen is another chance for a lookup that failed.
         self.connect_map(|s| s.retry_lyrics());
-        imp.seek_adjustment.connect_value_changed(glib::clone!(
-            #[weak(rename_to = s)]
-            self,
-            move |adj| {
-                if !s.imp().updating.get()
-                    && let Some(c) = s.controller()
-                {
-                    c.seek_ms((adj.value() * 1000.0) as u64);
+        let seek = SeekScale::attach(
+            &imp.seek_scale,
+            glib::clone!(
+                #[weak(rename_to = s)]
+                self,
+                move |secs| s.show_position(secs as u64 * 1000, s.duration_ms())
+            ),
+            glib::clone!(
+                #[weak(rename_to = s)]
+                self,
+                move |secs| {
+                    if let Some(c) = s.controller() {
+                        c.seek_ms((secs * 1000.0) as u64);
+                    }
                 }
-            }
-        ));
+            ),
+        );
+        let _ = imp.seek.set(seek);
         c.bind_property("volume", &imp.volume_adjustment.get(), "value")
             .bidirectional()
             .sync_create()
@@ -814,13 +822,25 @@ impl LioNowPlaying {
         }
     }
 
+    fn duration_ms(&self) -> u64 {
+        self.controller().map_or(0, |c| c.duration_ms())
+    }
+
     fn update_position(&self, position_ms: u64, duration_ms: u64) {
         let imp = self.imp();
-        imp.updating.set(true);
         imp.seek_adjustment
             .set_upper((duration_ms as f64 / 1000.0).max(1.0));
-        imp.seek_adjustment.set_value(position_ms as f64 / 1000.0);
-        imp.updating.set(false);
+        // Leave knob and labels where the user is dragging them.
+        if !imp.seek.get().is_some_and(SeekScale::is_scrubbing) {
+            imp.seek_adjustment.set_value(position_ms as f64 / 1000.0);
+            self.show_position(position_ms, duration_ms);
+        }
+        self.update_current_line(position_ms);
+    }
+
+    /// Elapsed and remaining time beside the seek bar.
+    fn show_position(&self, position_ms: u64, duration_ms: u64) {
+        let imp = self.imp();
         let pos = format_duration((position_ms / 1000) as i64);
         let remaining = format_duration((duration_ms.saturating_sub(position_ms) / 1000) as i64);
         imp.position_label.set_label(&pos);
@@ -833,7 +853,6 @@ impl LioNowPlaying {
                     1,
                 ),
             )]);
-        self.update_current_line(position_ms);
     }
 
     /// Fills the screen with a translucent-looking wash of the cover's colour: the
