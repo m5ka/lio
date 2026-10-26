@@ -3,7 +3,9 @@
 #
 # Needs a debug build, a graphical session, and the test server with the fixture
 # library (tests/fixtures/generate-music.sh, then tests/test-server.sh up).
-# Settings and data go to a temporary directory, so your own setup is untouched.
+# Settings and data go to a temporary directory, so your own setup is untouched, and
+# the desktop's font and GTK styling (portal, gtk-4.0/settings.ini and gtk.css) are
+# kept out, so the screenshots show stock Adwaita.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -41,8 +43,9 @@ shot() {
     shift 2
     local tmp
     tmp="$(mktemp -d)"
-    env GSETTINGS_BACKEND=memory \
-        XDG_DATA_HOME="$tmp/data" XDG_CACHE_HOME="$tmp/cache" XDG_STATE_HOME="$tmp/state" \
+    env GSETTINGS_BACKEND=memory GDK_DEBUG=no-portals \
+        XDG_CONFIG_HOME="$tmp/config" XDG_DATA_HOME="$tmp/data" \
+        XDG_CACHE_HOME="$tmp/cache" XDG_STATE_HOME="$tmp/state" \
         LIO_TEST_SERVER="$server" LIO_TEST_USER="$user" LIO_TEST_PASSWORD="$pass" \
         LIO_AUDIO_SINK=fakesink LIO_TEST_SIZE="$size" \
         LIO_SCREENSHOT="$out/$file" LIO_SCREENSHOT_DELAY_MS="${DELAY_MS:-6000}" \
