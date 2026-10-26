@@ -1,0 +1,46 @@
+using Gtk 4.0;
+using Adw 1;
+// Row for artists, genres and playlists.
+template $LioListRow: Gtk.Box {
+  spacing: 12;
+  margin-top: 6;
+  margin-bottom: 6;
+  margin-start: 6;
+  margin-end: 6;
+
+  Adw.Avatar avatar {
+    size: 40;
+    show-initials: true;
+  }
+
+  Gtk.Box {
+    orientation: vertical;
+    valign: center;
+    hexpand: true;
+
+    Gtk.Label title_label {
+      xalign: 0;
+      ellipsize: end;
+    }
+
+    Gtk.Label subtitle_label {
+      xalign: 0;
+      ellipsize: end;
+
+      styles [
+        "caption",
+        "dim-label",
+      ]
+    }
+  }
+
+  Gtk.Image offline_icon {
+    icon-name: "folder-download-symbolic";
+    visible: false;
+    tooltip-text: _("Available offline");
+
+    styles [
+      "dim-label",
+    ]
+  }
+}

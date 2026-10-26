@@ -1,0 +1,21 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "album": {
+      "id": "minimal1",
+      "name": "Minimal",
+      "songCount": 1,
+      "duration": 8,
+      "created": "2026-10-25T12:00:00Z",
+      "song": [
+        {
+          "id": "song-minimal-1",
+          "isDir": false,
+          "title": "Only Title",
+          "duration": 8
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,67 @@
+# Maintainer: m5ka <git@m5ka.dev>
+#
+# AUR package for Lio built from git. After changing this file, regenerate .SRCINFO:
+#   makepkg --printsrcinfo > .SRCINFO
+
+pkgname=lio-git
+pkgver=0.1.0.r0.g0000000
+pkgrel=1
+pkgdesc="Fast, native GNOME music player for Navidrome"
+arch=('x86_64' 'aarch64')
+url="https://github.com/m5ka/lio"
+license=('GPL-3.0-or-later')
+depends=(
+  'dbus'
+  'glib2'
+  'glycin'
+  'gst-plugins-base'
+  'gst-plugins-good'
+  'gstreamer'
+  'gtk4'
+  'libadwaita'
+  'sqlite'
+)
+optdepends=(
+  'gst-libav: AAC, ALAC and other formats'
+  'gst-plugins-bad: additional formats'
+)
+makedepends=('blueprint-compiler' 'cargo' 'git' 'meson')
+provides=('lio')
+conflicts=('lio')
+# Cargo does its own LTO; makepkg's C LTO flags can break bundled C crates (aws-lc).
+options=('!lto')
+source=("lio::git+https://github.com/m5ka/lio.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd lio
+  git describe --long --tags --abbrev=7 2>/dev/null | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf '0.1.0.r%s.g%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+prepare() {
+  cd lio
+  export CARGO_HOME="$srcdir/cargo-home"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  export CARGO_HOME="$srcdir/cargo-home"
+  export CARGO_NET_OFFLINE=true
+  export RUSTUP_TOOLCHAIN=stable
+  arch-meson lio build -Dprofile=default
+  meson compile -C build
+}
+
+check() {
+  export CARGO_HOME="$srcdir/cargo-home"
+  export CARGO_NET_OFFLINE=true
+  export RUSTUP_TOOLCHAIN=stable
+  # Integration tests need a running Navidrome and are #[ignore]d.
+  meson test -C build --no-rebuild --print-errorlogs
+}
+
+package() {
+  meson install -C build --no-rebuild --destdir "$pkgdir"
+}

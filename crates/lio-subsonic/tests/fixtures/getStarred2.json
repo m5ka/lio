@@ -1,0 +1,126 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "starred2": {
+      "artist": [
+        {
+          "id": "6ZICKXLoebcqVrKxHf9m3j",
+          "name": "Lio Fixtures",
+          "albumCount": 3,
+          "starred": "2026-10-25T15:11:47.950978981Z",
+          "musicBrainzId": "",
+          "sortName": "lio fixtures",
+          "roles": [
+            "maincredit",
+            "albumartist",
+            "artist"
+          ]
+        }
+      ],
+      "album": [
+        {
+          "id": "5bio7Z7d2sFEr1vduQwh3g",
+          "name": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "songCount": 5,
+          "duration": 100,
+          "created": "2026-10-25T15:04:18.725585817Z",
+          "starred": "2026-10-25T15:11:47.950538028Z",
+          "year": 2026,
+          "genre": "Test Tones",
+          "userRating": 0,
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "musicBrainzId": "",
+          "isCompilation": false,
+          "sortName": "gapless sweep",
+          "discTitles": [],
+          "originalReleaseDate": {},
+          "releaseDate": {},
+          "releaseTypes": [],
+          "recordLabels": [],
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "explicitStatus": "",
+          "version": ""
+        }
+      ],
+      "song": [
+        {
+          "id": "3rKEOazESAzHaNBwivC9J8",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 1",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 1,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 276867,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "starred": "2026-10-25T15:11:47.949379926Z",
+          "duration": 20,
+          "bitRate": 107,
+          "path": "Lio Fixtures/Gapless Sweep/01 - Sweep Part 1.flac",
+          "created": "2026-10-25T15:04:35.008782349Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 1",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        }
+      ]
+    }
+  }
+}

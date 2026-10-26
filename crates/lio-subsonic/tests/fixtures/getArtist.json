@@ -1,0 +1,133 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "artist": {
+      "id": "6ZICKXLoebcqVrKxHf9m3j",
+      "name": "Lio Fixtures",
+      "albumCount": 3,
+      "starred": "2026-10-25T15:11:47.950978981Z",
+      "musicBrainzId": "",
+      "sortName": "lio fixtures",
+      "roles": [
+        "albumartist",
+        "artist",
+        "maincredit"
+      ],
+      "album": [
+        {
+          "id": "52taejWHm2yihN28UhJMkJ",
+          "name": "Format Mix",
+          "artist": "Lio Fixtures",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "coverArt": "al-52taejWHm2yihN28UhJMkJ_bd16ff19236953f5",
+          "songCount": 3,
+          "duration": 36,
+          "created": "2026-10-25T15:04:19.832568439Z",
+          "year": 2023,
+          "genre": "Test Tones",
+          "userRating": 0,
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "musicBrainzId": "",
+          "isCompilation": false,
+          "sortName": "format mix",
+          "discTitles": [],
+          "originalReleaseDate": {},
+          "releaseDate": {},
+          "releaseTypes": [],
+          "recordLabels": [],
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "explicitStatus": "",
+          "version": ""
+        },
+        {
+          "id": "1SHrUWeZpgo7iB2ADZX8bm",
+          "name": "ReplayGain",
+          "artist": "Lio Fixtures",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "coverArt": "al-1SHrUWeZpgo7iB2ADZX8bm_0f1413f596bfcf1e",
+          "songCount": 3,
+          "duration": 45,
+          "created": "2026-10-25T15:04:19.322576445Z",
+          "year": 2025,
+          "genre": "Test Tones",
+          "userRating": 0,
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "musicBrainzId": "",
+          "isCompilation": false,
+          "sortName": "replaygain",
+          "discTitles": [],
+          "originalReleaseDate": {},
+          "releaseDate": {},
+          "releaseTypes": [],
+          "recordLabels": [],
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "explicitStatus": "",
+          "version": ""
+        },
+        {
+          "id": "5bio7Z7d2sFEr1vduQwh3g",
+          "name": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "songCount": 5,
+          "duration": 100,
+          "created": "2026-10-25T15:04:18.725585817Z",
+          "starred": "2026-10-25T15:11:47.950538028Z",
+          "year": 2026,
+          "genre": "Test Tones",
+          "userRating": 0,
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "musicBrainzId": "",
+          "isCompilation": false,
+          "sortName": "gapless sweep",
+          "discTitles": [],
+          "originalReleaseDate": {},
+          "releaseDate": {},
+          "releaseTypes": [],
+          "recordLabels": [],
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "explicitStatus": "",
+          "version": ""
+        }
+      ]
+    }
+  }
+}

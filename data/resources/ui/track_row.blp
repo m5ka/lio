@@ -1,0 +1,69 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioTrackRow: Adw.ActionRow {
+  activatable: true;
+  use-markup: false;
+  title-lines: 1;
+  subtitle-lines: 1;
+
+  [prefix]
+  Gtk.Stack number_stack {
+    width-request: 28;
+
+    Gtk.StackPage {
+      name: "number";
+
+      child: Gtk.Label number_label {
+        xalign: 1;
+
+        styles [
+          "dim-label",
+          "numeric",
+        ]
+      };
+    }
+
+    Gtk.StackPage {
+      name: "playing";
+
+      child: Gtk.Image {
+        icon-name: "media-playback-start-symbolic";
+        halign: end;
+
+        accessibility {
+          label: _("Now playing");
+        }
+
+        styles [
+          "accent",
+        ]
+      };
+    }
+  }
+
+  [suffix]
+  Gtk.Button star_button {
+    icon-name: "non-starred-symbolic";
+    valign: center;
+    tooltip-text: _("Add to Favourites");
+
+    styles [
+      "flat",
+      "circular",
+      "star-button",
+    ]
+
+    accessibility {
+      label: _("Add to Favourites");
+    }
+  }
+
+  [suffix]
+  Gtk.Label duration_label {
+    styles [
+      "dim-label",
+      "numeric",
+    ]
+  }
+}

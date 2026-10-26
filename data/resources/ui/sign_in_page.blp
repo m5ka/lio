@@ -1,0 +1,107 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioSignInPage: Adw.Bin {
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-title: false;
+    }
+
+    content: Adw.StatusPage {
+      icon-name: "folder-music-symbolic";
+      title: _("Welcome to Lio");
+      description: _("Sign in to your Navidrome server to start listening");
+      vexpand: true;
+
+      child: Adw.Clamp {
+        maximum-size: 420;
+
+        child: Gtk.Box {
+          orientation: vertical;
+          spacing: 18;
+
+          Gtk.ListBox {
+            selection-mode: none;
+
+            styles [
+              "boxed-list",
+            ]
+
+            Adw.EntryRow server_row {
+              title: _("Server Address");
+              input-purpose: url;
+              input-hints: no_spellcheck;
+              changed => $on_server_changed() swapped;
+              entry-activated => $on_entry_activated() swapped;
+            }
+
+            Adw.EntryRow username_row {
+              title: _("Username");
+              input-hints: no_spellcheck;
+              entry-activated => $on_entry_activated() swapped;
+            }
+
+            Adw.PasswordEntryRow password_row {
+              title: _("Password");
+              entry-activated => $on_entry_activated() swapped;
+            }
+          }
+
+          Gtk.Label http_warning {
+            visible: false;
+            wrap: true;
+            xalign: 0;
+            label: _(
+              "This connection isn't encrypted. People on the same network could see your password and what you listen to."
+            );
+
+            styles [
+              "warning",
+              "caption",
+            ]
+          }
+
+          Gtk.Label error_label {
+            visible: false;
+            wrap: true;
+            xalign: 0;
+
+            styles [
+              "error",
+            ]
+          }
+
+          Gtk.Button sign_in_button {
+            halign: center;
+            clicked => $on_sign_in_clicked() swapped;
+
+            child: Gtk.Stack sign_in_stack {
+              hhomogeneous: false;
+
+              Gtk.StackPage {
+                name: "label";
+
+                child: Gtk.Label {
+                  label: _("_Sign In");
+                  use-underline: true;
+                };
+              }
+
+              Gtk.StackPage {
+                name: "spinner";
+
+                child: Adw.Spinner {};
+              }
+            };
+
+            styles [
+              "pill",
+              "suggested-action",
+            ]
+          }
+        };
+      };
+    };
+  };
+}

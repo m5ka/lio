@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Ring around a play triangle, after the app icon. -->
+  <path fill="#222222" fill-rule="evenodd" d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 1.75a5.25 5.25 0 1 0 0 10.5A5.25 5.25 0 0 0 8 2.75z"/>
+  <path fill="#222222" d="M6.5 5.4v5.2c0 .5.55.8.97.53l3.9-2.6a.63.63 0 0 0 0-1.06l-3.9-2.6A.63.63 0 0 0 6.5 5.4z"/>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "scanStatus": {
+      "scanning": false,
+      "count": 16,
+      "folderCount": 5,
+      "lastScan": "2026-10-25T15:04:35.028157385Z",
+      "scanType": "full",
+      "elapsedTime": 1028157385
+    }
+  }
+}

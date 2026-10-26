@@ -1,0 +1,303 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioWindow: Adw.ApplicationWindow {
+  title: _("Lio");
+  default-width: 1100;
+  default-height: 760;
+  width-request: 360;
+  height-request: 294;
+
+  Adw.Breakpoint narrow_breakpoint {
+    condition ("max-width: 600sp")
+
+    setters {
+      split_view.collapsed: true;
+      queue_split.collapsed: true;
+    }
+  }
+
+  Adw.Breakpoint compact_breakpoint {
+    condition ("max-width: 400sp")
+
+    setters {
+      split_view.collapsed: true;
+      queue_split.collapsed: true;
+    }
+  }
+
+  content: Adw.ToastOverlay toast_overlay {
+    child: Gtk.Stack main_stack {
+      transition-type: crossfade;
+
+      Gtk.StackPage {
+        name: "loading";
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            show-title: false;
+          }
+
+          content: Adw.Spinner {
+            halign: center;
+            valign: center;
+            width-request: 32;
+            height-request: 32;
+          };
+        };
+      }
+
+      Gtk.StackPage {
+        name: "sign-in";
+
+        child: Adw.Bin sign_in_bin {};
+      }
+
+      Gtk.StackPage {
+        name: "now-playing";
+
+        child: Adw.Bin now_playing_bin {};
+      }
+
+      Gtk.StackPage {
+        name: "library";
+
+        child: Gtk.Box {
+          orientation: vertical;
+
+          Adw.Banner banner {
+            revealed: false;
+          }
+
+          Adw.OverlaySplitView queue_split {
+            vexpand: true;
+            sidebar-position: end;
+            show-sidebar: false;
+            min-sidebar-width: 300;
+            max-sidebar-width: 380;
+
+            content: Adw.NavigationSplitView split_view {
+              vexpand: true;
+              min-sidebar-width: 200;
+              max-sidebar-width: 260;
+
+              sidebar: Adw.NavigationPage {
+                title: _("Lio");
+                tag: "sidebar";
+
+                child: Adw.ToolbarView {
+                  [top]
+                  Adw.HeaderBar {
+                    [start]
+                    Gtk.Button search_button {
+                      icon-name: "system-search-symbolic";
+                      tooltip-text: _("Search");
+                      action-name: "win.search";
+
+                      accessibility {
+                        label: _("Search");
+                      }
+                    }
+
+                    [start]
+                    Adw.Spinner sync_spinner {
+                      visible: false;
+                      tooltip-text: _("Updating library");
+                    }
+
+                    [end]
+                    Gtk.MenuButton {
+                      primary: true;
+                      icon-name: "open-menu-symbolic";
+                      tooltip-text: _("Main Menu");
+                      menu-model: primary_menu;
+
+                      accessibility {
+                        label: _("Main Menu");
+                      }
+                    }
+                  }
+
+                  content: Gtk.ScrolledWindow {
+                    hscrollbar-policy: never;
+
+                    child: Gtk.ListBox sidebar_list {
+                      selection-mode: browse;
+
+                      styles [
+                        "navigation-sidebar",
+                        "lio-sidebar",
+                      ]
+
+                      Gtk.ListBoxRow {
+                        name: "home";
+
+                        child: Gtk.Box {
+                          spacing: 12;
+
+                          Gtk.Image {
+                            icon-name: "go-home-symbolic";
+                          }
+
+                          Gtk.Label {
+                            label: _("Home");
+                            xalign: 0;
+                          }
+                        };
+                      }
+
+                      Gtk.ListBoxRow {
+                        name: "albums";
+
+                        child: Gtk.Box {
+                          spacing: 12;
+
+                          Gtk.Image {
+                            icon-name: "media-optical-cd-audio-symbolic";
+                          }
+
+                          Gtk.Label {
+                            label: _("Albums");
+                            xalign: 0;
+                          }
+                        };
+                      }
+
+                      Gtk.ListBoxRow {
+                        name: "artists";
+
+                        child: Gtk.Box {
+                          spacing: 12;
+
+                          Gtk.Image {
+                            icon-name: "system-users-symbolic";
+                          }
+
+                          Gtk.Label {
+                            label: _("Artists");
+                            xalign: 0;
+                          }
+                        };
+                      }
+
+                      Gtk.ListBoxRow {
+                        name: "genres";
+
+                        child: Gtk.Box {
+                          spacing: 12;
+
+                          Gtk.Image {
+                            icon-name: "tag-symbolic";
+                          }
+
+                          Gtk.Label {
+                            label: _("Genres");
+                            xalign: 0;
+                          }
+                        };
+                      }
+
+                      Gtk.ListBoxRow {
+                        name: "favourites";
+
+                        child: Gtk.Box {
+                          spacing: 12;
+
+                          Gtk.Image {
+                            icon-name: "starred-symbolic";
+                          }
+
+                          Gtk.Label {
+                            label: _("Favourites");
+                            xalign: 0;
+                          }
+                        };
+                      }
+
+                      Gtk.ListBoxRow {
+                        name: "downloads";
+
+                        child: Gtk.Box {
+                          spacing: 12;
+
+                          Gtk.Image {
+                            icon-name: "folder-download-symbolic";
+                          }
+
+                          Gtk.Label {
+                            label: _("Downloads");
+                            xalign: 0;
+                          }
+                        };
+                      }
+                    };
+                  };
+                };
+              };
+
+              content: Adw.NavigationPage {
+                title: _("Library");
+                tag: "content";
+
+                child: Adw.NavigationView nav_view {};
+              };
+            };
+
+            sidebar: Adw.Bin queue_bin {};
+          }
+
+          Gtk.Revealer player_bar_revealer {
+            transition-type: slide_up;
+            reveal-child: false;
+
+            child: Adw.Bin player_bar_bin {};
+          }
+        };
+      }
+    };
+  };
+}
+
+menu primary_menu {
+  section {
+    item {
+      label: _("_Refresh Library");
+      action: "app.refresh-library";
+    }
+
+    item {
+      label: _("_Offline Mode");
+      action: "app.offline-mode";
+    }
+  }
+
+  section {
+    item {
+      label: _("_Preferences");
+      action: "app.preferences";
+    }
+
+    item {
+      label: _("_Keyboard Shortcuts");
+      action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("_About Lio");
+      action: "app.about";
+    }
+  }
+
+  section {
+    item {
+      label: _("_Sign Out");
+      action: "app.sign-out";
+    }
+
+    item {
+      label: _("_Quit");
+      action: "app.quit";
+    }
+  }
+}

@@ -1,0 +1,126 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.ShortcutsDialog shortcuts_dialog {
+  Adw.ShortcutsSection {
+    title: _("Playback");
+
+    Adw.ShortcutsItem {
+      title: _("Play or Pause");
+      accelerator: "space <Control>space";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Next Song");
+      accelerator: "<Control>Right";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Previous Song");
+      accelerator: "<Control>Left";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Seek Forward 10 Seconds");
+      accelerator: "<Shift>Right";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Seek Backward 10 Seconds");
+      accelerator: "<Shift>Left";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Volume Up");
+      accelerator: "<Control>Up";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Volume Down");
+      accelerator: "<Control>Down";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Shuffle");
+      accelerator: "<Control>s";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Repeat");
+      accelerator: "<Control>r";
+    }
+  }
+
+  Adw.ShortcutsSection {
+    title: _("Navigation");
+
+    Adw.ShortcutsItem {
+      title: _("Search");
+      accelerator: "<Control>f";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Now Playing");
+      accelerator: "<Control>Return";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Fullscreen Now Playing");
+      accelerator: "F11";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Leave Fullscreen or Close Now Playing");
+      accelerator: "Escape";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Up Next");
+      accelerator: "<Control>u";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Home, Albums, Artists, Genres, Favourites, Downloads");
+      accelerator: "<Alt>1...<Alt>6";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Back");
+      accelerator: "<Alt>Left";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Open Item Menu");
+      accelerator: "Menu <Shift>F10";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Move Queue Item Up / Down");
+      accelerator: "<Alt>Up <Alt>Down";
+    }
+  }
+
+  Adw.ShortcutsSection {
+    title: _("General");
+
+    Adw.ShortcutsItem {
+      title: _("Refresh Library");
+      accelerator: "F5";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Preferences");
+      accelerator: "<Control>comma";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Keyboard Shortcuts");
+      accelerator: "<Control>question";
+    }
+
+    Adw.ShortcutsItem {
+      title: _("Quit");
+      accelerator: "<Control>q";
+    }
+  }
+}

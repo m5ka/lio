@@ -1,0 +1,41 @@
+{
+    "subsonic-response": {
+        "status": "ok",
+        "version": "1.16.1",
+        "type": "navidrome",
+        "serverVersion": "0.64.2 (10114574)",
+        "openSubsonic": true,
+        "lyricsList": {
+            "structuredLyrics": [
+                {
+                    "displayArtist": "Lio Fixtures",
+                    "displayTitle": "Sweep Part 1",
+                    "lang": "xxx",
+                    "line": [
+                        {
+                            "start": 500,
+                            "value": "The sweep begins low and slow"
+                        },
+                        {
+                            "start": 4000,
+                            "value": "Climbing through the frequencies"
+                        },
+                        {
+                            "start": 8000,
+                            "value": "Every cycle a little higher"
+                        },
+                        {
+                            "start": 12000,
+                            "value": "No gap between the parts"
+                        },
+                        {
+                            "start": 16000,
+                            "value": "Hand over to part two"
+                        }
+                    ],
+                    "synced": true
+                }
+            ]
+        }
+    }
+}

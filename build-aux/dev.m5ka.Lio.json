@@ -1,0 +1,69 @@
+{
+  "id": "dev.m5ka.Lio",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "49",
+  "sdk": "org.gnome.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.rust-stable"
+  ],
+  "command": "lio",
+  "finish-args": [
+    "--share=network",
+    "--share=ipc",
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--socket=pulseaudio",
+    "--device=dri",
+    "--own-name=org.mpris.MediaPlayer2.lio",
+    "--talk-name=org.kde.StatusNotifierWatcher"
+  ],
+  "build-options": {
+    "append-path": "/usr/lib/sdk/rust-stable/bin",
+    "build-args": [],
+    "env": {
+      "CARGO_HOME": "/run/build/lio/cargo",
+      "CARGO_NET_OFFLINE": "true"
+    }
+  },
+  "cleanup": [
+    "/include",
+    "/lib/pkgconfig",
+    "/man",
+    "/share/doc",
+    "/share/man",
+    "*.la",
+    "*.a"
+  ],
+  "modules": [
+    {
+      "name": "blueprint-compiler",
+      "buildsystem": "meson",
+      "cleanup": [
+        "*"
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://gitlab.gnome.org/GNOME/blueprint-compiler.git",
+          "tag": "v0.22.2",
+          "commit": "ed35ac74de0c1bb1f5e852410b97edd1f08904c9"
+        }
+      ]
+    },
+    {
+      "name": "lio",
+      "buildsystem": "meson",
+      "run-tests": false,
+      "config-opts": [
+        "-Dprofile=default"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": ".."
+        },
+        "cargo-sources.json"
+      ]
+    }
+  ]
+}

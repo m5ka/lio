@@ -1,0 +1,28 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "user": {
+      "username": "lio",
+      "scrobblingEnabled": true,
+      "adminRole": true,
+      "settingsRole": false,
+      "downloadRole": true,
+      "uploadRole": false,
+      "playlistRole": false,
+      "coverArtRole": true,
+      "commentRole": false,
+      "podcastRole": false,
+      "streamRole": true,
+      "jukeboxRole": false,
+      "shareRole": true,
+      "videoConversionRole": false,
+      "folder": [
+        1
+      ]
+    }
+  }
+}

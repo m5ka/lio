@@ -1,0 +1,135 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioFavouritesPage: Adw.NavigationPage {
+  title: _("Favourites");
+  tag: "favourites";
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar header_bar {
+      title-widget: Adw.ViewSwitcher {
+        stack: view_stack;
+        policy: wide;
+      };
+    }
+
+    [bottom]
+    Adw.ViewSwitcherBar switcher_bar {
+      stack: view_stack;
+    }
+
+    content: Adw.ViewStack view_stack {
+      Adw.ViewStackPage {
+        name: "albums";
+        title: _("Albums");
+        icon-name: "media-optical-cd-audio-symbolic";
+
+        child: Gtk.Stack albums_stack {
+          Gtk.StackPage {
+            name: "empty";
+
+            child: Adw.StatusPage {
+              icon-name: "starred-symbolic";
+              title: _("No Favourite Albums");
+            };
+          }
+
+          Gtk.StackPage {
+            name: "list";
+
+            child: Gtk.ScrolledWindow {
+              hscrollbar-policy: never;
+
+              child: Gtk.GridView albums_grid {
+                min-columns: 2;
+                max-columns: 12;
+                single-click-activate: true;
+
+                styles [
+                  "album-grid",
+                ]
+              };
+            };
+          }
+        };
+      }
+
+      Adw.ViewStackPage {
+        name: "artists";
+        title: _("Artists");
+        icon-name: "system-users-symbolic";
+
+        child: Gtk.Stack artists_stack {
+          Gtk.StackPage {
+            name: "empty";
+
+            child: Adw.StatusPage {
+              icon-name: "starred-symbolic";
+              title: _("No Favourite Artists");
+            };
+          }
+
+          Gtk.StackPage {
+            name: "list";
+
+            child: Gtk.ScrolledWindow {
+              hscrollbar-policy: never;
+
+              child: Adw.ClampScrollable {
+                maximum-size: 900;
+
+                child: Gtk.ListView artists_list {
+                  single-click-activate: true;
+
+                  styles [
+                    "navigation-sidebar",
+                    "lio-list",
+                  ]
+                };
+              };
+            };
+          }
+        };
+      }
+
+      Adw.ViewStackPage {
+        name: "tracks";
+        title: _("Songs");
+        icon-name: "audio-x-generic-symbolic";
+
+        child: Gtk.Stack tracks_stack {
+          Gtk.StackPage {
+            name: "empty";
+
+            child: Adw.StatusPage {
+              icon-name: "starred-symbolic";
+              title: _("No Favourite Songs");
+            };
+          }
+
+          Gtk.StackPage {
+            name: "list";
+
+            child: Gtk.ScrolledWindow {
+              hscrollbar-policy: never;
+
+              child: Adw.ClampScrollable {
+                maximum-size: 900;
+
+                child: Gtk.ListView tracks_list {
+                  single-click-activate: true;
+
+                  styles [
+                    "navigation-sidebar",
+                    "lio-list",
+                  ]
+                };
+              };
+            };
+          }
+        };
+      }
+    };
+  };
+}

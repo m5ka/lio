@@ -1,0 +1,413 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioNowPlaying: Adw.Bin {
+  styles [
+    "now-playing",
+  ]
+
+  child: Adw.BreakpointBin {
+    width-request: 360;
+    height-request: 294;
+
+    // Narrow windows: cover above the details instead of beside them.
+    Adw.Breakpoint narrow_breakpoint {
+      condition ("max-width: 720sp")
+
+      setters {
+        main_box.orientation: vertical;
+        main_box.spacing: 24;
+        main_box.margin-start: 24;
+        main_box.margin-end: 24;
+        main_box.margin-bottom: 24;
+        info_box.hexpand: true;
+        info_box.width-request: -1;
+      }
+    }
+
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar header_bar {
+        show-title: false;
+
+        [start]
+        Gtk.Button {
+          icon-name: "go-down-symbolic";
+          tooltip-text: _("Close Now Playing");
+          action-name: "now-playing.close";
+
+          accessibility {
+            label: _("Close Now Playing");
+          }
+        }
+
+        [end]
+        Gtk.MenuButton rating_button {
+          icon-name: "view-more-symbolic";
+          tooltip-text: _("More");
+
+          accessibility {
+            label: _("More");
+          }
+        }
+
+        // Becomes "Leave Fullscreen" while the window is fullscreen.
+        [end]
+        Gtk.Button fullscreen_button {
+          icon-name: "view-fullscreen-symbolic";
+          tooltip-text: _("Fullscreen");
+          action-name: "now-playing.fullscreen";
+
+          accessibility {
+            label: _("Fullscreen");
+          }
+        }
+
+        [end]
+        Gtk.MenuButton volume_button {
+          icon-name: "audio-volume-high-symbolic";
+          tooltip-text: _("Volume");
+
+          popover: Gtk.Popover {
+            child: Gtk.Scale {
+              orientation: vertical;
+              inverted: true;
+              height-request: 160;
+              draw-value: false;
+
+              adjustment: Gtk.Adjustment volume_adjustment {
+                lower: 0;
+                upper: 1;
+                step-increment: 0.05;
+                page-increment: 0.1;
+              };
+
+              accessibility {
+                label: _("Volume");
+              }
+            };
+          };
+
+          accessibility {
+            label: _("Volume");
+          }
+        }
+      }
+
+      // Keeps cover and details together on very wide windows.
+      content: Adw.Clamp {
+        maximum-size: 1280;
+        tightening-threshold: 1280;
+
+        child: Gtk.Box main_box {
+          spacing: 56;
+          margin-start: 56;
+          margin-end: 56;
+          margin-top: 8;
+          margin-bottom: 48;
+
+          // Square, as large as the space allows, up to the clamp.
+          Adw.Clamp cover_clamp {
+            maximum-size: 640;
+            tightening-threshold: 640;
+            hexpand: true;
+            vexpand: true;
+
+            child: Gtk.AspectFrame cover_frame {
+              ratio: 1;
+              obey-child: false;
+              hexpand: true;
+              vexpand: true;
+
+              child: Adw.Bin cover_bin {
+                overflow: hidden;
+
+                styles [
+                  "album-cover",
+                  "album-cover-large",
+                  "now-playing-cover",
+                ]
+
+                child: Gtk.Stack cover_stack {
+                  Gtk.StackPage {
+                    name: "placeholder";
+
+                    child: Gtk.Image {
+                      icon-name: "audio-x-generic-symbolic";
+                      pixel-size: 128;
+
+                      styles [
+                        "dim-label",
+                      ]
+                    };
+                  }
+
+                  Gtk.StackPage {
+                    name: "cover";
+
+                    child: Gtk.Picture cover_picture {
+                      content-fit: cover;
+
+                      accessibility {
+                        label: _("Album cover");
+                      }
+                    };
+                  }
+                };
+              };
+            };
+          }
+
+          Gtk.Box info_box {
+            orientation: vertical;
+            spacing: 24;
+            width-request: 380;
+            valign: center;
+
+            Gtk.Box {
+              spacing: 6;
+
+              Gtk.Box {
+                orientation: vertical;
+                spacing: 4;
+                hexpand: true;
+
+                Gtk.Label title_label {
+                  xalign: 0;
+                  wrap: true;
+                  wrap-mode: word_char;
+                  lines: 3;
+                  ellipsize: end;
+
+                  styles [
+                    "title-1",
+                  ]
+                }
+
+                Gtk.Button {
+                  halign: start;
+                  action-name: "now-playing.go-artist";
+
+                  child: Gtk.Label artist_label {
+                    xalign: 0;
+                    ellipsize: end;
+                  };
+
+                  styles [
+                    "flat",
+                    "artist-link",
+                  ]
+                }
+
+                Gtk.Button {
+                  halign: start;
+                  action-name: "now-playing.go-album";
+
+                  child: Gtk.Label album_label {
+                    xalign: 0;
+                    ellipsize: end;
+
+                    styles [
+                      "dim-label",
+                    ]
+                  };
+
+                  styles [
+                    "flat",
+                    "artist-link",
+                  ]
+                }
+
+                Gtk.Label format_label {
+                  halign: start;
+                  margin-top: 6;
+
+                  styles [
+                    "caption",
+                    "format-badge",
+                  ]
+                }
+              }
+
+              Gtk.Button star_button {
+                icon-name: "non-starred-symbolic";
+                valign: start;
+                action-name: "now-playing.star";
+
+                styles [
+                  "flat",
+                  "circular",
+                ]
+              }
+            }
+
+            // Shown with the Lyrics button by the controls. Its height is capped (see
+            // `update_layout`) so the column stays about as tall as the cover.
+            Gtk.Revealer lyrics_revealer {
+              transition-type: slide_down;
+              visible: false;
+
+              child: Gtk.ScrolledWindow lyrics_scroller {
+                hscrollbar-policy: never;
+                propagate-natural-height: true;
+                min-content-height: 120;
+
+                styles [
+                  "lyrics",
+                ]
+
+                child: Gtk.Box lyrics_box {
+                  orientation: vertical;
+                  spacing: 10;
+                  margin-top: 8;
+                  margin-bottom: 8;
+                  margin-end: 12;
+                };
+              };
+            }
+
+            Gtk.Box {
+              orientation: vertical;
+
+              Gtk.Scale seek_scale {
+                draw-value: false;
+
+                adjustment: Gtk.Adjustment seek_adjustment {
+                  lower: 0;
+                  upper: 1;
+                  step-increment: 5;
+                  page-increment: 30;
+                };
+
+                accessibility {
+                  label: _("Position");
+                }
+              }
+
+              Gtk.CenterBox {
+                start-widget: Gtk.Label position_label {
+                  styles [
+                    "caption",
+                    "numeric",
+                    "dim-label",
+                  ]
+                };
+
+                end-widget: Gtk.Label remaining_label {
+                  styles [
+                    "caption",
+                    "numeric",
+                    "dim-label",
+                  ]
+                };
+              }
+            }
+
+            Gtk.CenterBox {
+              start-widget: Gtk.ToggleButton {
+                icon-name: "media-playlist-shuffle-symbolic";
+                tooltip-text: _("Shuffle");
+                action-name: "app.shuffle";
+                valign: center;
+
+                styles [
+                  "flat",
+                  "circular",
+                ]
+              };
+
+              center-widget: Gtk.Box {
+                spacing: 12;
+
+                Gtk.Button {
+                  icon-name: "media-skip-backward-symbolic";
+                  tooltip-text: _("Previous");
+                  action-name: "app.previous";
+                  valign: center;
+
+                  styles [
+                    "flat",
+                    "circular",
+                    "large-transport",
+                  ]
+
+                  accessibility {
+                    label: _("Previous");
+                  }
+                }
+
+                Gtk.Button play_button {
+                  icon-name: "media-playback-start-symbolic";
+                  tooltip-text: _("Play");
+                  action-name: "app.play-pause";
+                  width-request: 64;
+                  height-request: 64;
+
+                  styles [
+                    "circular",
+                    "suggested-action",
+                    "large-transport",
+                  ]
+
+                  accessibility {
+                    label: _("Play");
+                  }
+                }
+
+                Gtk.Button {
+                  icon-name: "media-skip-forward-symbolic";
+                  tooltip-text: _("Next");
+                  action-name: "app.next";
+                  valign: center;
+
+                  styles [
+                    "flat",
+                    "circular",
+                    "large-transport",
+                  ]
+
+                  accessibility {
+                    label: _("Next");
+                  }
+                }
+              };
+
+              end-widget: Gtk.Box {
+                spacing: 6;
+
+                // Hidden when the track has no lyrics.
+                Gtk.ToggleButton lyrics_button {
+                  icon-name: "audio-input-microphone-symbolic";
+                  tooltip-text: _("Lyrics");
+                  valign: center;
+                  visible: false;
+
+                  styles [
+                    "flat",
+                    "circular",
+                  ]
+
+                  accessibility {
+                    label: _("Lyrics");
+                  }
+                }
+
+                Gtk.Button repeat_button {
+                  icon-name: "media-playlist-repeat-symbolic";
+                  tooltip-text: _("Repeat");
+                  action-name: "app.repeat";
+                  valign: center;
+
+                  styles [
+                    "flat",
+                    "circular",
+                  ]
+                }
+              };
+            }
+          }
+        };
+      };
+    };
+  };
+}

@@ -1,0 +1,84 @@
+using Gtk 4.0;
+using Adw 1;
+// Track row for virtualised lists (playlists, favourites).
+template $LioTrackListRow: Gtk.Box {
+  spacing: 12;
+  margin-top: 4;
+  margin-bottom: 4;
+  margin-start: 6;
+  margin-end: 6;
+
+  Adw.Bin cover_bin {
+    valign: center;
+    overflow: hidden;
+
+    styles [
+      "cover-small",
+    ]
+
+    child: Gtk.Stack cover_stack {
+      Gtk.StackPage {
+        name: "placeholder";
+
+        child: Gtk.Image {
+          icon-name: "audio-x-generic-symbolic";
+
+          styles [
+            "dim-label",
+          ]
+        };
+      }
+
+      Gtk.StackPage {
+        name: "cover";
+
+        child: Gtk.Image cover_image {
+          pixel-size: 40;
+        };
+      }
+    };
+  }
+
+  Gtk.Box {
+    orientation: vertical;
+    valign: center;
+    hexpand: true;
+
+    Gtk.Box {
+      spacing: 6;
+
+      Gtk.Image playing_icon {
+        icon-name: "media-playback-start-symbolic";
+        visible: false;
+
+        styles [
+          "accent",
+        ]
+      }
+
+      Gtk.Label title_label {
+        xalign: 0;
+        ellipsize: end;
+      }
+    }
+
+    Gtk.Label subtitle_label {
+      xalign: 0;
+      ellipsize: end;
+
+      styles [
+        "caption",
+        "dim-label",
+      ]
+    }
+  }
+
+  Gtk.Label duration_label {
+    valign: center;
+
+    styles [
+      "dim-label",
+      "numeric",
+    ]
+  }
+}

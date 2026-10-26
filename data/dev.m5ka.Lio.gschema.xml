@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="lio">
+  <enum id="dev.m5ka.Lio.Quality">
+    <value nick="original" value="0"/>
+    <value nick="opus-192" value="1"/>
+    <value nick="opus-128" value="2"/>
+    <value nick="mp3-320" value="3"/>
+  </enum>
+  <enum id="dev.m5ka.Lio.ReplayGain">
+    <value nick="off" value="0"/>
+    <value nick="track" value="1"/>
+    <value nick="album" value="2"/>
+    <value nick="auto" value="3"/>
+  </enum>
+  <enum id="dev.m5ka.Lio.AlbumsSort">
+    <value nick="recently-added" value="0"/>
+    <value nick="name" value="1"/>
+    <value nick="artist" value="2"/>
+    <value nick="year" value="3"/>
+    <value nick="most-played" value="4"/>
+    <value nick="random" value="5"/>
+  </enum>
+  <enum id="dev.m5ka.Lio.AuthMode">
+    <value nick="token" value="0"/>
+    <value nick="apikey" value="1"/>
+  </enum>
+
+  <schema id="dev.m5ka.Lio" path="/dev/m5ka/Lio/">
+    <!-- Account (non-secret; the password or API key lives in the Secret Service) -->
+    <key name="server-url" type="s">
+      <default>''</default>
+      <summary>Normalised server URL</summary>
+    </key>
+    <key name="username" type="s">
+      <default>''</default>
+      <summary>Username on the server</summary>
+    </key>
+    <key name="auth-mode" enum="dev.m5ka.Lio.AuthMode">
+      <default>'token'</default>
+      <summary>How requests are authenticated</summary>
+    </key>
+    <key name="pinned-cert-sha256" type="s">
+      <default>''</default>
+      <summary>SHA-256 fingerprint of a certificate the user explicitly trusted</summary>
+    </key>
+    <key name="server-type" type="s">
+      <default>''</default>
+      <summary>Server type reported by ping</summary>
+    </key>
+    <key name="server-version" type="s">
+      <default>''</default>
+      <summary>Server version reported by ping</summary>
+    </key>
+    <key name="api-version" type="s">
+      <default>''</default>
+      <summary>Subsonic API version reported by ping</summary>
+    </key>
+    <key name="extensions" type="as">
+      <default>[]</default>
+      <summary>OpenSubsonic extensions supported by the server</summary>
+    </key>
+
+    <!-- Preferences -->
+    <key name="stream-quality-unmetered" enum="dev.m5ka.Lio.Quality">
+      <default>'original'</default>
+      <summary>Streaming quality on unmetered networks</summary>
+    </key>
+    <key name="stream-quality-metered" enum="dev.m5ka.Lio.Quality">
+      <default>'opus-128'</default>
+      <summary>Streaming quality on metered networks</summary>
+    </key>
+    <key name="download-quality" enum="dev.m5ka.Lio.Quality">
+      <default>'original'</default>
+      <summary>Quality of offline downloads</summary>
+    </key>
+    <key name="download-on-metered" type="b">
+      <default>false</default>
+      <summary>Allow downloads on metered connections</summary>
+    </key>
+    <key name="cache-limit-mb" type="u">
+      <range min="100" max="1048576"/>
+      <default>2048</default>
+      <summary>Maximum size of the automatic audio cache in MiB</summary>
+    </key>
+    <key name="replaygain" enum="dev.m5ka.Lio.ReplayGain">
+      <default>'auto'</default>
+      <summary>ReplayGain mode</summary>
+      <description>Auto uses album gain when an album plays in order, track gain otherwise.</description>
+    </key>
+    <key name="scrobble" type="b">
+      <default>true</default>
+      <summary>Report plays to the server</summary>
+    </key>
+    <key name="notifications" type="b">
+      <default>false</default>
+      <summary>Show a notification when the track changes</summary>
+    </key>
+    <key name="close-to-background" type="b">
+      <default>true</default>
+      <summary>Keep playing when the window is closed</summary>
+    </key>
+    <key name="offline-mode" type="b">
+      <default>false</default>
+      <summary>Only show and play downloaded and cached music</summary>
+    </key>
+    <key name="volume" type="d">
+      <range min="0.0" max="1.0"/>
+      <default>1.0</default>
+      <summary>Playback volume</summary>
+    </key>
+    <key name="albums-sort" enum="dev.m5ka.Lio.AlbumsSort">
+      <default>'recently-added'</default>
+      <summary>Sort order of the album grid</summary>
+    </key>
+
+    <!-- Window state -->
+    <key name="online-lyrics" type="b">
+      <default>true</default>
+      <summary>Look up timed lyrics on lrclib.net when the server has none</summary>
+    </key>
+    <key name="now-playing-lyrics" type="b">
+      <default>false</default>
+      <summary>Show lyrics on the Now Playing screen</summary>
+    </key>
+    <key name="window-width" type="i">
+      <default>1100</default>
+    </key>
+    <key name="window-height" type="i">
+      <default>760</default>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>false</default>
+    </key>
+  </schema>
+</schemalist>

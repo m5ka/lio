@@ -1,0 +1,92 @@
+# Lio CI. Runs on GitHub Actions and Forgejo Actions.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  NAVIDROME_VERSION: 0.64.2
+
+jobs:
+  checks:
+    name: Format, lint, unit and contract tests
+    runs-on: ubuntu-latest
+    # Arch ships current GTK, libadwaita and GStreamer.
+    container: archlinux:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm --needed base-devel git rust gtk4 libadwaita \
+            gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-libav \
+            glycin sqlite blueprint-compiler python-gobject ffmpeg flac
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Generate test fixtures
+        run: tests/fixtures/generate-music.sh
+      - name: Translatable files listed
+        run: build-aux/check-potfiles.sh
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Tests
+        # Fixture-based playback tests fail here instead of skipping.
+        env:
+          LIO_REQUIRE_FIXTURES: "1"
+        run: cargo test --workspace
+
+  integration:
+    name: Integration tests (real Navidrome)
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm --needed base-devel git rust gtk4 libadwaita \
+            gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-libav \
+            glycin sqlite blueprint-compiler python python-gobject ffmpeg flac \
+            xorg-server-xvfb dbus curl
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Generate test fixtures
+        run: tests/fixtures/generate-music.sh
+      - name: Start Navidrome
+        run: |
+          curl -sSfL -o /tmp/nd.tar.gz \
+            "https://github.com/navidrome/navidrome/releases/download/v${NAVIDROME_VERSION}/navidrome_${NAVIDROME_VERSION}_linux_amd64.tar.gz"
+          mkdir -p /tmp/navidrome/data && tar -xzf /tmp/nd.tar.gz -C /tmp/navidrome
+          ND_MUSICFOLDER="$PWD/tests/fixtures/music" ND_DATAFOLDER=/tmp/navidrome/data ND_PORT=4533 \
+            ND_SCANONSTARTUP=true /tmp/navidrome/navidrome > /tmp/navidrome.log 2>&1 &
+          for i in $(seq 60); do curl -fs http://localhost:4533/ping && break; sleep 1; done
+          curl -fs -X POST -H 'Content-Type: application/json' \
+            -d '{"username":"lio","password":"lio-test"}' http://localhost:4533/auth/createAdmin
+          for i in $(seq 60); do
+            curl -fs "http://localhost:4533/rest/getScanStatus?u=lio&p=lio-test&v=1.16.1&c=ci&f=json" \
+              | grep -q '"scanning":false' && break
+            sleep 1
+          done
+          tests/test-server.sh seed
+      - name: Integration tests
+        run: |
+          cargo build -p lio
+          xvfb-run -a dbus-run-session -- cargo test -p lio --test integration -- --ignored
+      - name: Navidrome log
+        if: failure()
+        run: cat /tmp/navidrome.log
+
+  flatpak:
+    name: Flatpak (development profile)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-49
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: lio-devel.flatpak
+          manifest-path: build-aux/dev.m5ka.Lio.Devel.json
+          cache-key: flatpak-builder-${{ github.sha }}

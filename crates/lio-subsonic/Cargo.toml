@@ -1,0 +1,32 @@
+[package]
+name = "lio-subsonic"
+description = "Typed Subsonic/OpenSubsonic API client used by Lio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+reqwest.workspace = true
+rustls.workspace = true
+rustls-platform-verifier.workspace = true
+url.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+md-5.workspace = true
+sha2.workspace = true
+hex.workspace = true
+rand.workspace = true
+futures-util.workspace = true
+bytes = "1"
+
+[dev-dependencies]
+tokio.workspace = true
+wiremock.workspace = true

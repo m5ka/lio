@@ -1,0 +1,67 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "artists": {
+      "index": [
+        {
+          "name": "L",
+          "artist": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures",
+              "albumCount": 3,
+              "starred": "2026-10-25T15:11:47.950978981Z",
+              "musicBrainzId": "",
+              "sortName": "lio fixtures",
+              "roles": [
+                "maincredit",
+                "albumartist",
+                "artist"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "U",
+          "artist": [
+            {
+              "id": "1Szq7zdeEWSYlVLS5AXEBq",
+              "name": "\u00dcn\u00efc\u00f6d\u00e9 \u00c4rtist",
+              "albumCount": 1,
+              "musicBrainzId": "",
+              "sortName": "unicode artist",
+              "roles": [
+                "artist",
+                "maincredit",
+                "albumartist"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "[Unknown]",
+          "artist": [
+            {
+              "id": "6QiT23Pg8GAJHZop58uMKH",
+              "name": "[Unknown Artist]",
+              "albumCount": 1,
+              "musicBrainzId": "",
+              "sortName": "[unknown artist]",
+              "roles": [
+                "maincredit",
+                "albumartist",
+                "artist"
+              ]
+            }
+          ]
+        }
+      ],
+      "lastModified": 1792940674000,
+      "ignoredArticles": "The El La Los Las Le Les Os As O A"
+    }
+  }
+}

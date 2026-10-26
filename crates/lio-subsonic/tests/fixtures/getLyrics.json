@@ -1,0 +1,14 @@
+{
+    "subsonic-response": {
+        "status": "ok",
+        "version": "1.16.1",
+        "type": "navidrome",
+        "serverVersion": "0.64.2 (10114574)",
+        "openSubsonic": true,
+        "lyrics": {
+            "artist": "Lio Fixtures",
+            "title": "Sweep Part 2",
+            "value": "Plain lyrics without timestamps\nSecond line of the verse\nA new stanza after a blank line\n"
+        }
+    }
+}

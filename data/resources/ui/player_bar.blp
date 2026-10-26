@@ -1,0 +1,275 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioPlayerBar: Adw.Bin {
+  styles [
+    "player-bar",
+  ]
+
+  child: Gtk.Box {
+    orientation: vertical;
+    spacing: 2;
+    margin-start: 12;
+    margin-end: 12;
+    margin-top: 4;
+    margin-bottom: 8;
+
+    Gtk.Box seek_box {
+      spacing: 8;
+
+      Gtk.Label position_label {
+        label: "0:00";
+        width-chars: 5;
+        xalign: 1;
+
+        styles [
+          "caption",
+          "numeric",
+          "dim-label",
+        ]
+      }
+
+      Gtk.Scale seek_scale {
+        hexpand: true;
+        draw-value: false;
+
+        adjustment: Gtk.Adjustment seek_adjustment {
+          lower: 0;
+          upper: 1;
+          step-increment: 5;
+          page-increment: 30;
+        };
+
+        accessibility {
+          label: _("Position");
+        }
+      }
+
+      Gtk.Label duration_label {
+        label: "0:00";
+        width-chars: 5;
+        xalign: 0;
+
+        styles [
+          "caption",
+          "numeric",
+          "dim-label",
+        ]
+      }
+    }
+
+    Gtk.CenterBox {
+      start-widget: Gtk.Button now_playing_button {
+        tooltip-text: _("Now Playing");
+        action-name: "win.now-playing";
+
+        child: Gtk.Box {
+          spacing: 12;
+
+          Adw.Bin cover_bin {
+            valign: center;
+            overflow: hidden;
+
+            styles [
+              "cover-small",
+            ]
+
+            child: Gtk.Stack cover_stack {
+              Gtk.StackPage {
+                name: "placeholder";
+
+                child: Gtk.Image {
+                  icon-name: "audio-x-generic-symbolic";
+                  pixel-size: 24;
+
+                  styles [
+                    "dim-label",
+                  ]
+                };
+              }
+
+              Gtk.StackPage {
+                name: "cover";
+
+                child: Gtk.Image cover_picture {
+                  pixel-size: 44;
+                };
+              }
+            };
+          }
+
+          Gtk.Box {
+            orientation: vertical;
+            valign: center;
+
+            Gtk.Label title_label {
+              xalign: 0;
+              ellipsize: end;
+              max-width-chars: 28;
+
+              styles [
+                "heading",
+              ]
+            }
+
+            Gtk.Label artist_label {
+              xalign: 0;
+              ellipsize: end;
+              max-width-chars: 28;
+
+              styles [
+                "caption",
+                "dim-label",
+              ]
+            }
+          }
+        };
+
+        styles [
+          "flat",
+          "now-playing-button",
+        ]
+      };
+
+      center-widget: Gtk.Box transport_box {
+        spacing: 6;
+        margin-start: 12;
+        margin-end: 12;
+
+        Gtk.Button previous_button {
+          icon-name: "media-skip-backward-symbolic";
+          tooltip-text: _("Previous");
+          action-name: "app.previous";
+          valign: center;
+
+          styles [
+            "flat",
+            "circular",
+          ]
+
+          accessibility {
+            label: _("Previous");
+          }
+        }
+
+        Gtk.Button play_button {
+          icon-name: "media-playback-start-symbolic";
+          tooltip-text: _("Play");
+          action-name: "app.play-pause";
+          valign: center;
+          width-request: 48;
+          height-request: 48;
+
+          styles [
+            "circular",
+            "suggested-action",
+          ]
+
+          accessibility {
+            label: _("Play");
+          }
+        }
+
+        Gtk.Button next_button {
+          icon-name: "media-skip-forward-symbolic";
+          tooltip-text: _("Next");
+          action-name: "app.next";
+          valign: center;
+
+          styles [
+            "flat",
+            "circular",
+          ]
+
+          accessibility {
+            label: _("Next");
+          }
+        }
+      };
+
+      end-widget: Gtk.Box end_box {
+        spacing: 6;
+
+        Gtk.ToggleButton shuffle_button {
+          icon-name: "media-playlist-shuffle-symbolic";
+          tooltip-text: _("Shuffle");
+          action-name: "app.shuffle";
+          valign: center;
+
+          styles [
+            "flat",
+          ]
+
+          accessibility {
+            label: _("Shuffle");
+          }
+        }
+
+        Gtk.Button repeat_button {
+          icon-name: "media-playlist-repeat-symbolic";
+          tooltip-text: _("Repeat");
+          action-name: "app.repeat";
+          valign: center;
+
+          styles [
+            "flat",
+          ]
+
+          accessibility {
+            label: _("Repeat");
+          }
+        }
+
+        Gtk.ToggleButton queue_button {
+          icon-name: "view-list-symbolic";
+          tooltip-text: _("Up Next");
+          action-name: "win.show-queue";
+          valign: center;
+
+          styles [
+            "flat",
+          ]
+
+          accessibility {
+            label: _("Up Next");
+          }
+        }
+
+        Gtk.MenuButton volume_button {
+          icon-name: "audio-volume-high-symbolic";
+          tooltip-text: _("Volume");
+          valign: center;
+          direction: up;
+
+          popover: Gtk.Popover {
+            child: Gtk.Scale volume_scale {
+              orientation: vertical;
+              inverted: true;
+              height-request: 140;
+              draw-value: false;
+
+              adjustment: Gtk.Adjustment volume_adjustment {
+                lower: 0;
+                upper: 1;
+                step-increment: 0.05;
+                page-increment: 0.1;
+              };
+
+              accessibility {
+                label: _("Volume");
+              }
+            };
+          };
+
+          styles [
+            "flat",
+          ]
+
+          accessibility {
+            label: _("Volume");
+          }
+        }
+      };
+    }
+  };
+}

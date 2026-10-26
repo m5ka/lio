@@ -1,0 +1,170 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioPlaylistPage: Adw.NavigationPage {
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar header_bar {
+      [end]
+      Gtk.MenuButton more_button {
+        icon-name: "view-more-symbolic";
+        tooltip-text: _("More");
+        menu-model: playlist_menu;
+
+        accessibility {
+          label: _("More");
+        }
+      }
+
+      [end]
+      Gtk.ToggleButton edit_button {
+        icon-name: "document-edit-symbolic";
+        tooltip-text: _("Edit Playlist");
+
+        accessibility {
+          label: _("Edit Playlist");
+        }
+      }
+    }
+
+    content: Gtk.Box {
+      orientation: vertical;
+
+      Adw.Clamp {
+        maximum-size: 900;
+
+        child: Gtk.Box header_box {
+          spacing: 18;
+          margin-top: 18;
+          margin-bottom: 12;
+          margin-start: 12;
+          margin-end: 12;
+
+          Adw.Bin cover_bin {
+            valign: center;
+            overflow: hidden;
+
+            styles [
+              "album-cover",
+            ]
+
+            child: Gtk.Stack cover_stack {
+              Gtk.StackPage {
+                name: "placeholder";
+
+                child: Gtk.Image {
+                  icon-name: "view-list-symbolic";
+                  pixel-size: 48;
+
+                  styles [
+                    "dim-label",
+                  ]
+                };
+              }
+
+              Gtk.StackPage {
+                name: "cover";
+
+                child: Gtk.Image cover_picture {
+                  pixel-size: 128;
+                };
+              }
+            };
+          }
+
+          Gtk.Box {
+            orientation: vertical;
+            spacing: 4;
+            valign: center;
+            hexpand: true;
+
+            Gtk.Label name_label {
+              xalign: 0;
+              wrap: true;
+
+              styles [
+                "title-2",
+              ]
+            }
+
+            Gtk.Label meta_label {
+              xalign: 0;
+              wrap: true;
+
+              styles [
+                "dim-label",
+              ]
+            }
+
+            Gtk.Box action_box {
+              spacing: 12;
+              margin-top: 8;
+
+              Gtk.Button {
+                action-name: "playlist.play";
+
+                child: Adw.ButtonContent {
+                  icon-name: "media-playback-start-symbolic";
+                  label: _("_Play");
+                  use-underline: true;
+                };
+
+                styles [
+                  "pill",
+                  "suggested-action",
+                ]
+              }
+
+              Gtk.Button {
+                action-name: "playlist.shuffle";
+
+                child: Adw.ButtonContent {
+                  icon-name: "media-playlist-shuffle-symbolic";
+                  label: _("_Shuffle");
+                  use-underline: true;
+                };
+
+                styles [
+                  "pill",
+                ]
+              }
+            }
+          }
+        };
+      }
+
+      Gtk.ScrolledWindow {
+        vexpand: true;
+        hscrollbar-policy: never;
+
+        child: Adw.ClampScrollable {
+          maximum-size: 900;
+          tightening-threshold: 600;
+
+          child: Gtk.ListView track_list {
+            single-click-activate: true;
+
+            styles [
+              "navigation-sidebar",
+              "lio-list",
+            ]
+          };
+        };
+      }
+    };
+  };
+}
+
+menu playlist_menu {
+  section {
+    item {
+      label: _("_Rename…");
+      action: "playlist.rename";
+    }
+
+    item {
+      label: _("_Delete Playlist…");
+      action: "playlist.delete";
+    }
+  }
+}

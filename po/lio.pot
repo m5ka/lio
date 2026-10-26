@@ -1,0 +1,1186 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR m5ka <git@m5ka.dev>
+# This file is distributed under the same license as the lio package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: lio\n"
+"Report-Msgid-Bugs-To: https://github.com/m5ka/lio/issues\n"
+"POT-Creation-Date: 2026-10-25 23:50+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: data/dev.m5ka.Lio.desktop.in:2 data/dev.m5ka.Lio.metainfo.xml.in:6
+#: data/resources/ui/window.blp:5 data/resources/ui/window.blp:86
+msgid "Lio"
+msgstr ""
+
+#: data/dev.m5ka.Lio.desktop.in:3
+msgid "Music Player"
+msgstr ""
+
+#: data/dev.m5ka.Lio.desktop.in:4 data/dev.m5ka.Lio.metainfo.xml.in:7
+#: src/application.rs:557
+msgid "Listen to music from your Navidrome server"
+msgstr ""
+
+#. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+#: data/dev.m5ka.Lio.desktop.in:6
+msgid "music;player;navidrome;subsonic;opensubsonic;stream;audio;"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:9
+msgid ""
+"Lio is a fast, native music player for your Navidrome server. It keeps your "
+"whole library at hand, even with tens of thousands of albums, and lets you "
+"take your favourite music with you to listen without a connection."
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:15
+msgid "Browse albums, artists, genres and playlists, even in huge libraries"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:16
+msgid "Search as you type"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:17
+msgid "Gapless playback with ReplayGain"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:18
+msgid "Download albums and playlists to listen offline"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:19
+msgid "Your favourites, ratings and plays stay in sync with your server"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:20
+msgid "Adapts to phones and small windows"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:24
+msgid "m5ka"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:33
+msgid "An album, with its tracks and the player bar"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:37
+msgid "Home: recently added, recently played and most played albums"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:41
+msgid "Now Playing, with the cover and playback controls"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:45
+msgid "The album page on a phone"
+msgstr ""
+
+#: data/dev.m5ka.Lio.metainfo.xml.in:68
+msgid "First release."
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:32
+msgid "Normalised server URL"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:36
+msgid "Username on the server"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:40
+msgid "How requests are authenticated"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:44
+msgid "SHA-256 fingerprint of a certificate the user explicitly trusted"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:48
+msgid "Server type reported by ping"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:52
+msgid "Server version reported by ping"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:56
+msgid "Subsonic API version reported by ping"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:60
+msgid "OpenSubsonic extensions supported by the server"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:66
+msgid "Streaming quality on unmetered networks"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:70
+msgid "Streaming quality on metered networks"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:74
+msgid "Quality of offline downloads"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:78
+msgid "Allow downloads on metered connections"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:83
+msgid "Maximum size of the automatic audio cache in MiB"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:87
+msgid "ReplayGain mode"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:88
+msgid ""
+"Auto uses album gain when an album plays in order, track gain otherwise."
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:92
+msgid "Report plays to the server"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:96
+msgid "Show a notification when the track changes"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:100
+msgid "Keep playing when the window is closed"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:104
+msgid "Only show and play downloaded and cached music"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:109
+msgid "Playback volume"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:113
+msgid "Sort order of the album grid"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:119
+msgid "Look up timed lyrics on lrclib.net when the server has none"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:123
+msgid "Show lyrics on the Now Playing screen"
+msgstr ""
+
+#: data/resources/ui/album_grid.blp:5 data/resources/ui/artist_page.blp:90
+#: data/resources/ui/favourites_page.blp:25
+#: data/resources/ui/search_page.blp:80 data/resources/ui/window.blp:161
+#: src/widgets/pages/album_grid.rs:118
+msgid "Albums"
+msgstr ""
+
+#: data/resources/ui/album_grid.blp:13 data/resources/ui/album_grid.blp:16
+msgid "Sort"
+msgstr ""
+
+#: data/resources/ui/album_grid.blp:29
+msgid "No Albums"
+msgstr ""
+
+#: data/resources/ui/album_grid.blp:37 data/resources/ui/home_page.blp:29
+msgid "Loading Your Library"
+msgstr ""
+
+#: data/resources/ui/album_grid.blp:38 data/resources/ui/home_page.blp:30
+msgid "This only takes a while the first time"
+msgstr ""
+
+#: data/resources/ui/album_page.blp:5 src/widgets/pages/downloads_page.rs:29
+msgid "Album"
+msgstr ""
+
+#: data/resources/ui/album_page.blp:34
+msgid "Can't Load Album"
+msgstr ""
+
+#: data/resources/ui/album_page.blp:143 data/resources/ui/playlist_page.blp:108
+#: src/widgets/item_menu.rs:52
+msgid "_Play"
+msgstr ""
+
+#: data/resources/ui/album_page.blp:158 data/resources/ui/artist_page.blp:77
+#: data/resources/ui/playlist_page.blp:123
+msgid "_Shuffle"
+msgstr ""
+
+#: data/resources/ui/album_page.blp:169 data/resources/ui/album_page.blp:173
+#: src/widgets/pages/album_page.rs:379
+msgid "Download"
+msgstr ""
+
+#: data/resources/ui/album_page.blp:185 data/resources/ui/album_page.blp:194
+#: data/resources/ui/track_row.blp:49 data/resources/ui/track_row.blp:58
+#: src/widgets/pages/album_page.rs:459
+msgid "Add to Favourites"
+msgstr ""
+
+#: data/resources/ui/album_tile.blp:61 data/resources/ui/album_tile.blp:64
+#: data/resources/ui/list_row.blp:40 src/widgets/pages/downloads_page.rs:59
+msgid "Available offline"
+msgstr ""
+
+#: data/resources/ui/artist_page.blp:62
+msgid "_Play All"
+msgstr ""
+
+#: data/resources/ui/cert_dialog.blp:5
+msgid "Untrusted Certificate"
+msgstr ""
+
+#: data/resources/ui/cert_dialog.blp:7
+msgid ""
+"The server's certificate isn't trusted by this computer. Only continue if "
+"you recognise this fingerprint, for example because you created the "
+"certificate yourself."
+msgstr ""
+
+#: data/resources/ui/cert_dialog.blp:25 src/application.rs:360
+#: src/widgets/add_to_playlist.rs:33 src/widgets/add_to_playlist.rs:91
+#: src/widgets/pages/playlist_page.rs:315 src/widgets/queue_sidebar.rs:126
+msgid "_Cancel"
+msgstr ""
+
+#: data/resources/ui/cert_dialog.blp:26
+msgid "_Trust and Connect"
+msgstr ""
+
+#: data/resources/ui/favourites_page.blp:5 data/resources/ui/window.blp:212
+msgid "Favourites"
+msgstr ""
+
+#: data/resources/ui/favourites_page.blp:34
+msgid "No Favourite Albums"
+msgstr ""
+
+#: data/resources/ui/favourites_page.blp:60
+#: data/resources/ui/search_page.blp:63 data/resources/ui/window.blp:178
+#: src/widgets/pages/library_pages.rs:32
+msgid "Artists"
+msgstr ""
+
+#: data/resources/ui/favourites_page.blp:69
+msgid "No Favourite Artists"
+msgstr ""
+
+#: data/resources/ui/favourites_page.blp:98
+#: data/resources/ui/search_page.blp:98
+msgid "Songs"
+msgstr ""
+
+#: data/resources/ui/favourites_page.blp:107
+msgid "No Favourite Songs"
+msgstr ""
+
+#: data/resources/ui/home_page.blp:5 data/resources/ui/window.blp:144
+msgid "Home"
+msgstr ""
+
+#: data/resources/ui/home_page.blp:20
+msgid "Nothing Here Yet"
+msgstr ""
+
+#: data/resources/ui/home_page.blp:21
+msgid "Albums you add and play will show up here"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:36 data/resources/ui/now_playing.blp:40
+msgid "Close Now Playing"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:47 data/resources/ui/now_playing.blp:50
+#: data/resources/ui/playlist_page.blp:11
+#: data/resources/ui/playlist_page.blp:15 src/widgets/now_playing.rs:711
+msgid "More"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:58 data/resources/ui/now_playing.blp:62
+#: src/widgets/now_playing.rs:663
+msgid "Fullscreen"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:69 data/resources/ui/now_playing.blp:86
+#: data/resources/ui/now_playing.blp:92 data/resources/ui/player_bar.blp:240
+#: data/resources/ui/player_bar.blp:259 data/resources/ui/player_bar.blp:269
+msgid "Volume"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:152
+msgid "Album cover"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:283 data/resources/ui/player_bar.blp:44
+msgid "Position"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:309 data/resources/ui/player_bar.blp:195
+#: data/resources/ui/player_bar.blp:204 data/resources/ui/shortcuts.blp:44
+msgid "Shuffle"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:324 data/resources/ui/now_playing.blp:335
+#: data/resources/ui/player_bar.blp:141 data/resources/ui/player_bar.blp:151
+#: src/desktop/tray.rs:181
+msgid "Previous"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:341 data/resources/ui/now_playing.blp:353
+#: data/resources/ui/player_bar.blp:157 data/resources/ui/player_bar.blp:169
+#: src/desktop/tray.rs:178 src/widgets/now_playing.rs:720
+#: src/widgets/player_bar.rs:228
+msgid "Play"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:359 data/resources/ui/now_playing.blp:370
+#: data/resources/ui/player_bar.blp:175 data/resources/ui/player_bar.blp:185
+#: src/desktop/tray.rs:180
+msgid "Next"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:381 data/resources/ui/now_playing.blp:391
+msgid "Lyrics"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:397 data/resources/ui/player_bar.blp:210
+#: data/resources/ui/player_bar.blp:219 data/resources/ui/shortcuts.blp:49
+msgid "Repeat"
+msgstr ""
+
+#: data/resources/ui/player_bar.blp:63 data/resources/ui/shortcuts.blp:63
+msgid "Now Playing"
+msgstr ""
+
+#: data/resources/ui/player_bar.blp:225 data/resources/ui/player_bar.blp:234
+#: data/resources/ui/queue_sidebar.blp:12 data/resources/ui/shortcuts.blp:78
+msgid "Up Next"
+msgstr ""
+
+#: data/resources/ui/playlist_page.blp:22
+#: data/resources/ui/playlist_page.blp:25
+msgid "Edit Playlist"
+msgstr ""
+
+#: data/resources/ui/playlist_page.blp:161
+msgid "_Rename…"
+msgstr ""
+
+#: data/resources/ui/playlist_page.blp:166
+msgid "_Delete Playlist…"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:8 data/resources/ui/shortcuts.blp:6
+msgid "Playback"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:12
+msgid "Streaming Quality"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:13
+msgid "Lower qualities are transcoded by the server and use less data"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:16
+msgid "On Unlimited Networks"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:21
+msgid "On Metered Networks"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:27
+msgid "Sound"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:30
+msgid "Volume Normalization"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:31
+msgid "Uses ReplayGain information when available"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:35
+msgid "Off"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:36
+msgid "Per Track"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:37
+msgid "Per Album"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:38
+msgid "Automatic"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:46
+msgid "Keep Playing When Closed"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:47
+msgid "Music continues after the window is closed"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:53
+msgid "Storage"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:58 data/resources/ui/window.blp:240
+msgid "Library"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:63
+msgid "Report Plays"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:64
+msgid "Send what you listen to to your server, for play counts and scrobbling"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:68
+msgid "Song Notifications"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:69
+msgid "Show a notification when the song changes and Lio isn't focused"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:73
+msgid "Find Lyrics Online"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:74
+msgid ""
+"When the server has no timed lyrics, look them up on lrclib.net. This sends "
+"the song's title, artist and album there"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:80
+msgid "Account"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:84
+msgid "Server"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:87
+msgid "Address"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:96 data/resources/ui/sign_in_page.blp:40
+msgid "Username"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:104
+msgid "Server Version"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:114
+msgid "_Sign Out…"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:128 src/widgets/storage.rs:88
+msgid "Original"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:129 src/widgets/storage.rs:89
+msgid "High (Opus 192 kbps)"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:130 src/widgets/storage.rs:90
+msgid "Standard (Opus 128 kbps)"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:131 src/widgets/storage.rs:91
+msgid "MP3 320 kbps"
+msgstr ""
+
+#: data/resources/ui/queue_sidebar.blp:18
+#: data/resources/ui/queue_sidebar.blp:22
+msgid "Save as Playlist"
+msgstr ""
+
+#: data/resources/ui/queue_sidebar.blp:29
+#: data/resources/ui/queue_sidebar.blp:33
+msgid "Clear Queue"
+msgstr ""
+
+#: data/resources/ui/queue_sidebar.blp:44
+msgid "Nothing Queued"
+msgstr ""
+
+#: data/resources/ui/queue_sidebar.blp:45
+msgid "Use “Play Next” or “Add to Queue” on any song or album"
+msgstr ""
+
+#: data/resources/ui/search_page.blp:5 data/resources/ui/shortcuts.blp:58
+#: data/resources/ui/window.blp:95 data/resources/ui/window.blp:99
+msgid "Search"
+msgstr ""
+
+#: data/resources/ui/search_page.blp:16
+msgid "Search artists, albums and songs"
+msgstr ""
+
+#: data/resources/ui/search_page.blp:31
+msgid "Search Your Library"
+msgstr ""
+
+#: data/resources/ui/search_page.blp:32
+msgid "Find artists, albums and songs"
+msgstr ""
+
+#: data/resources/ui/search_page.blp:41
+msgid "No Results"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:9
+msgid "Play or Pause"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:14
+msgid "Next Song"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:19
+msgid "Previous Song"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:24
+msgid "Seek Forward 10 Seconds"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:29
+msgid "Seek Backward 10 Seconds"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:34
+msgid "Volume Up"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:39
+msgid "Volume Down"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:55
+msgid "Navigation"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:68
+msgid "Fullscreen Now Playing"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:73
+msgid "Leave Fullscreen or Close Now Playing"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:83
+msgid "Home, Albums, Artists, Genres, Favourites, Downloads"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:88
+msgid "Back"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:93
+msgid "Open Item Menu"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:98
+msgid "Move Queue Item Up / Down"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:104
+msgid "General"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:107
+msgid "Refresh Library"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:112
+msgid "Preferences"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:117
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: data/resources/ui/shortcuts.blp:122 src/desktop/tray.rs:182
+msgid "Quit"
+msgstr ""
+
+#: data/resources/ui/sign_in_page.blp:13
+msgid "Welcome to Lio"
+msgstr ""
+
+#: data/resources/ui/sign_in_page.blp:14
+msgid "Sign in to your Navidrome server to start listening"
+msgstr ""
+
+#: data/resources/ui/sign_in_page.blp:32
+msgid "Server Address"
+msgstr ""
+
+#: data/resources/ui/sign_in_page.blp:46
+msgid "Password"
+msgstr ""
+
+#: data/resources/ui/sign_in_page.blp:56
+msgid ""
+"This connection isn't encrypted. People on the same network could see your "
+"password and what you listen to."
+msgstr ""
+
+#: data/resources/ui/sign_in_page.blp:86
+msgid "_Sign In"
+msgstr ""
+
+#: data/resources/ui/track_row.blp:35
+msgid "Now playing"
+msgstr ""
+
+#: data/resources/ui/window.blp:106
+msgid "Updating library"
+msgstr ""
+
+#: data/resources/ui/window.blp:113 data/resources/ui/window.blp:117
+msgid "Main Menu"
+msgstr ""
+
+#: data/resources/ui/window.blp:195 src/widgets/pages/library_pages.rs:74
+msgid "Genres"
+msgstr ""
+
+#: data/resources/ui/window.blp:229 src/widgets/pages/downloads_page.rs:112
+#: src/widgets/storage.rs:83
+msgid "Downloads"
+msgstr ""
+
+#: data/resources/ui/window.blp:265
+msgid "_Refresh Library"
+msgstr ""
+
+#: data/resources/ui/window.blp:270
+msgid "_Offline Mode"
+msgstr ""
+
+#: data/resources/ui/window.blp:277
+msgid "_Preferences"
+msgstr ""
+
+#: data/resources/ui/window.blp:282
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: data/resources/ui/window.blp:287
+msgid "_About Lio"
+msgstr ""
+
+#: data/resources/ui/window.blp:294 src/application.rs:361
+msgid "_Sign Out"
+msgstr ""
+
+#: data/resources/ui/window.blp:299
+msgid "_Quit"
+msgstr ""
+
+#: src/actions/annotation.rs:90
+msgid "Added to favourites"
+msgstr ""
+
+#: src/actions/annotation.rs:92
+msgid "Removed from favourites"
+msgstr ""
+
+#: src/actions/items.rs:84
+msgid "Nothing to play"
+msgstr ""
+
+#: src/actions/items.rs:92
+msgid "Playing next"
+msgstr ""
+
+#: src/actions/items.rs:96
+msgid "Added to queue"
+msgstr ""
+
+#: src/actions/items.rs:109
+msgid "Downloading for offline listening"
+msgstr ""
+
+#: src/actions/items.rs:110
+msgid "Download removed"
+msgstr ""
+
+#: src/application.rs:261
+msgid "You're offline — showing downloaded and cached music"
+msgstr ""
+
+#: src/application.rs:263
+msgid "Go Online"
+msgstr ""
+
+#: src/application.rs:276
+msgid "Your session has expired. Sign in again to continue."
+msgstr ""
+
+#: src/application.rs:352
+msgid "Sign Out?"
+msgstr ""
+
+#: src/application.rs:354
+msgid "Downloads and cached music will be deleted from this device."
+msgstr ""
+
+#: src/desktop/background.rs:59
+msgid "Keep playing music when the window is closed"
+msgstr ""
+
+#: src/desktop/tray.rs:177
+msgid "Show Lio"
+msgstr ""
+
+#: src/desktop/tray.rs:179 src/widgets/now_playing.rs:718
+#: src/widgets/pages/downloads_page.rs:203 src/widgets/player_bar.rs:226
+msgid "Pause"
+msgstr ""
+
+#: src/desktop/tray.rs:183
+msgid "Not playing"
+msgstr ""
+
+#: src/models/mod.rs:21
+msgid "Unknown Artist"
+msgstr ""
+
+#: src/offline.rs:220
+#, rust-format
+msgid "A downloaded song was removed from the server"
+msgid_plural "{} downloaded songs were removed from the server"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/offline.rs:231
+msgid "Downloads paused: not enough disk space"
+msgstr ""
+
+#: src/offline.rs:298
+msgid "Downloads aren't available"
+msgstr ""
+
+#: src/playback_controller.rs:426
+msgid "Nothing in the queue is available offline"
+msgstr ""
+
+#: src/playback_controller.rs:435
+msgid "Audio playback isn't available"
+msgstr ""
+
+#: src/playback_controller.rs:450
+msgid "Can't play this track"
+msgstr ""
+
+#: src/playback_controller.rs:484
+msgid "Skipped songs that aren't available offline"
+msgstr ""
+
+#: src/playback_controller.rs:640
+msgid "Can't play this track, skipping it"
+msgstr ""
+
+#: src/widgets/add_to_playlist.rs:23 src/widgets/queue_sidebar.rs:117
+msgid "Playlist name"
+msgstr ""
+
+#: src/widgets/add_to_playlist.rs:33 src/widgets/queue_sidebar.rs:126
+msgid "_Save"
+msgstr ""
+
+#: src/widgets/add_to_playlist.rs:63
+msgid "_New Playlist…"
+msgstr ""
+
+#: src/widgets/add_to_playlist.rs:72 src/widgets/pages/playlist_page.rs:355
+#: src/widgets/queue_sidebar.rs:102
+#, rust-format
+msgid "{} song"
+msgid_plural "{} songs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/widgets/add_to_playlist.rs:87
+msgid "Add to Playlist"
+msgstr ""
+
+#: src/widgets/add_to_playlist.rs:138 src/widgets/pages/library_pages.rs:148
+#: src/widgets/window.rs:366
+msgid "New Playlist"
+msgstr ""
+
+#: src/widgets/add_to_playlist.rs:146
+msgid "Added to playlist"
+msgstr ""
+
+#: src/widgets/editable_rows.rs:35 src/widgets/editable_rows.rs:48
+msgid "Drag to reorder"
+msgstr ""
+
+#: src/widgets/editable_rows.rs:42 src/widgets/editable_rows.rs:46
+msgid "Remove"
+msgstr ""
+
+#: src/widgets/error_toast.rs:9
+msgid "Can't reach the server"
+msgstr ""
+
+#: src/widgets/error_toast.rs:10
+msgid "The server's certificate isn't trusted"
+msgstr ""
+
+#: src/widgets/error_toast.rs:11
+msgid "This doesn't look like a Navidrome server"
+msgstr ""
+
+#: src/widgets/error_toast.rs:12
+msgid "Wrong username or password"
+msgstr ""
+
+#: src/widgets/error_toast.rs:13
+msgid "Server version not supported"
+msgstr ""
+
+#: src/widgets/error_toast.rs:14
+msgid "Your account isn't allowed to do this"
+msgstr ""
+
+#: src/widgets/error_toast.rs:15
+msgid "This item no longer exists on the server"
+msgstr ""
+
+#: src/widgets/error_toast.rs:16
+msgid "Enter a valid server address"
+msgstr ""
+
+#: src/widgets/error_toast.rs:18
+#, rust-format
+msgid "The server reported an error: {}"
+msgstr ""
+
+#: src/widgets/error_toast.rs:21
+msgid "Something went wrong talking to the server"
+msgstr ""
+
+#: src/widgets/item_menu.rs:53
+msgid "Play _Next"
+msgstr ""
+
+#: src/widgets/item_menu.rs:54
+msgid "_Add to Queue"
+msgstr ""
+
+#: src/widgets/item_menu.rs:60 src/widgets/now_playing.rs:700
+msgid "Add to _Playlist…"
+msgstr ""
+
+#: src/widgets/item_menu.rs:68
+msgid "Un_star"
+msgstr ""
+
+#: src/widgets/item_menu.rs:70
+msgid "_Star"
+msgstr ""
+
+#: src/widgets/item_menu.rs:84 src/widgets/now_playing.rs:692
+msgid "_Clear Rating"
+msgstr ""
+
+#: src/widgets/item_menu.rs:88
+msgid "_Rating"
+msgstr ""
+
+#: src/widgets/item_menu.rs:101
+msgid "Remove _Download"
+msgstr ""
+
+#: src/widgets/item_menu.rs:103
+msgid "_Download"
+msgstr ""
+
+#: src/widgets/item_menu.rs:113 src/widgets/item_menu.rs:129
+msgid "Go to _Artist"
+msgstr ""
+
+#: src/widgets/item_menu.rs:122
+msgid "Go to A_lbum"
+msgstr ""
+
+#: src/widgets/navigate.rs:37
+msgid "This album isn't available"
+msgstr ""
+
+#: src/widgets/navigate.rs:53
+msgid "This artist isn't available"
+msgstr ""
+
+#: src/widgets/now_playing.rs:575
+msgid "Lyrics from LRCLIB"
+msgstr ""
+
+#: src/widgets/now_playing.rs:661
+msgid "Leave Fullscreen"
+msgstr ""
+
+#: src/widgets/now_playing.rs:699
+msgid "Rating"
+msgstr ""
+
+#: src/widgets/now_playing.rs:709
+#, rust-format
+msgid "Rated {} of 5"
+msgstr ""
+
+#: src/widgets/now_playing.rs:758 src/widgets/player_bar.rs:252
+#, rust-format
+msgid "{} of {}"
+msgstr ""
+
+#: src/widgets/pages/album_grid.rs:23 src/widgets/pages/home_page.rs:99
+msgid "Recently Added"
+msgstr ""
+
+#: src/widgets/pages/album_grid.rs:25
+msgid "Name"
+msgstr ""
+
+#: src/widgets/pages/album_grid.rs:26
+msgid "Artist"
+msgstr ""
+
+#: src/widgets/pages/album_grid.rs:27
+msgid "Year"
+msgstr ""
+
+#: src/widgets/pages/album_grid.rs:28 src/widgets/pages/home_page.rs:109
+msgid "Most Played"
+msgstr ""
+
+#: src/widgets/pages/album_grid.rs:29
+msgid "Random"
+msgstr ""
+
+#: src/widgets/pages/album_page.rs:137
+#, rust-format
+msgid "Disc {}"
+msgstr ""
+
+#: src/widgets/pages/album_page.rs:217
+#, rust-format
+msgid "{} track"
+msgid_plural "{} tracks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/widgets/pages/album_page.rs:377
+msgid "Available Offline — Remove Download"
+msgstr ""
+
+#: src/widgets/pages/album_page.rs:378
+msgid "Downloading — Cancel"
+msgstr ""
+
+#: src/widgets/pages/album_page.rs:457
+msgid "Remove from Favourites"
+msgstr ""
+
+#: src/widgets/pages/artist_page.rs:141 src/widgets/pages/library_pages.rs:13
+#: src/widgets/pages/search_page.rs:171
+#, rust-format
+msgid "{} album"
+msgid_plural "{} albums"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/widgets/pages/downloads_page.rs:22
+msgid "Favourite Songs"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:42
+msgid "Playlist"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:48
+#, rust-format
+msgid "{done} of {total} song"
+msgid_plural "{done} of {total} songs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/widgets/pages/downloads_page.rs:55
+msgid "Queued"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:56
+msgid "Downloading"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:57
+msgid "Paused"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:58
+msgid "Waiting for an allowed network"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:60
+msgid "Updating"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:62
+msgid "Not enough disk space"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:64
+msgid "Failed"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:76
+msgid "No Downloads"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:78
+msgid "Download albums and playlists to listen without a connection"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:101
+#: src/widgets/pages/downloads_page.rs:104
+msgid "Remove All Downloads"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:200
+msgid "Resume"
+msgstr ""
+
+#: src/widgets/pages/downloads_page.rs:229
+#: src/widgets/pages/downloads_page.rs:234
+msgid "Remove Download"
+msgstr ""
+
+#: src/widgets/pages/home_page.rs:104
+msgid "Recently Played"
+msgstr ""
+
+#: src/widgets/pages/home_page.rs:163
+msgid "See All"
+msgstr ""
+
+#: src/widgets/pages/library_pages.rs:33
+msgid "No Artists"
+msgstr ""
+
+#: src/widgets/pages/library_pages.rs:75
+msgid "No Genres"
+msgstr ""
+
+#: src/widgets/pages/playlist_page.rs:281
+msgid "Rename Playlist"
+msgstr ""
+
+#: src/widgets/pages/playlist_page.rs:309
+msgid "Delete Playlist?"
+msgstr ""
+
+#: src/widgets/pages/playlist_page.rs:310
+#, rust-format
+msgid "“{}” will be deleted from the server."
+msgstr ""
+
+#: src/widgets/pages/playlist_page.rs:316
+msgid "_Delete"
+msgstr ""
+
+#: src/widgets/pages/playlist_page.rs:340
+msgid "Playlist deleted"
+msgstr ""
+
+#: src/widgets/pages/sign_in_page.rs:159
+msgid "Enter a server address, username and password"
+msgstr ""
+
+#: src/widgets/queue_sidebar.rs:121
+msgid "Save Queue as Playlist"
+msgstr ""
+
+#: src/widgets/queue_sidebar.rs:144
+msgid "Queue saved as a playlist"
+msgstr ""
+
+#: src/widgets/storage.rs:18
+#, rust-format
+msgid "Cache {cache} · Downloads {downloads}"
+msgstr ""
+
+#: src/widgets/storage.rs:31
+msgid "Audio Cache"
+msgstr ""
+
+#: src/widgets/storage.rs:33
+msgid "Recently played music is kept so it starts instantly and plays offline"
+msgstr ""
+
+#: src/widgets/storage.rs:37
+msgid "Cache Size Limit"
+msgstr ""
+
+#: src/widgets/storage.rs:38
+msgid "In MB; least-played songs are removed first"
+msgstr ""
+
+#: src/widgets/storage.rs:50
+msgid "Used"
+msgstr ""
+
+#: src/widgets/storage.rs:55
+msgid "_Clear Cache"
+msgstr ""
+
+#: src/widgets/storage.rs:86
+msgid "Download Quality"
+msgstr ""
+
+#: src/widgets/storage.rs:108
+msgid "Download on Metered Networks"
+msgstr ""
+
+#: src/widgets/storage.rs:109
+msgid "Mobile data and hotspots may cost money"
+msgstr ""
+
+#: src/widgets/storage.rs:115
+msgid "_Manage Downloads"
+msgstr ""

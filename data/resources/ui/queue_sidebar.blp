@@ -1,0 +1,71 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioQueueSidebar: Adw.Bin {
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Up Next");
+      };
+
+      [start]
+      Gtk.Button {
+        icon-name: "list-add-symbolic";
+        tooltip-text: _("Save as Playlist");
+        action-name: "queue.save";
+
+        accessibility {
+          label: _("Save as Playlist");
+        }
+      }
+
+      [end]
+      Gtk.Button {
+        icon-name: "edit-clear-all-symbolic";
+        tooltip-text: _("Clear Queue");
+        action-name: "queue.clear";
+
+        accessibility {
+          label: _("Clear Queue");
+        }
+      }
+    }
+
+    content: Gtk.Stack stack {
+      Gtk.StackPage {
+        name: "empty";
+
+        child: Adw.StatusPage {
+          icon-name: "view-list-symbolic";
+          title: _("Nothing Queued");
+          description: _("Use “Play Next” or “Add to Queue” on any song or album");
+
+          styles [
+            "compact",
+          ]
+        };
+      }
+
+      Gtk.StackPage {
+        name: "list";
+
+        child: Gtk.ScrolledWindow scrolled {
+          hscrollbar-policy: never;
+
+          child: Gtk.ListView queue_list {
+            single-click-activate: true;
+
+            styles [
+              "navigation-sidebar",
+              "lio-list",
+            ]
+          };
+        };
+      }
+    };
+  };
+}

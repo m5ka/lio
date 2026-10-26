@@ -1,0 +1,132 @@
+/* Lio styles. Only libadwaita named colours and variables; no hard-coded colours. */
+
+.album-cover {
+  border-radius: 12px;
+  background-color: var(--card-bg-color);
+  box-shadow: 0 1px 3px 1px color-mix(in srgb, var(--shade-color) 60%, transparent);
+}
+
+.album-cover > stack,
+.album-cover picture {
+  border-radius: 12px;
+}
+
+.album-cover-large {
+  border-radius: 16px;
+}
+
+.album-cover-large picture {
+  border-radius: 16px;
+}
+
+.cover-small {
+  border-radius: 6px;
+  background-color: var(--card-bg-color);
+}
+
+.cover-small picture {
+  border-radius: 6px;
+}
+
+/* Sidebar icons share the width of the playlist covers, so every label lines up. */
+.lio-sidebar row > box > image {
+  min-width: 24px;
+}
+
+/* Playlist covers in the sidebar; the list icon stands in until one loads. */
+.sidebar-cover {
+  border-radius: 5px;
+}
+
+.sidebar-cover image {
+  border-radius: 5px;
+}
+
+playerbar {
+  border-top: 1px solid var(--border-color);
+  background-color: var(--headerbar-bg-color);
+}
+
+.now-playing-button {
+  padding: 4px 8px 4px 4px;
+}
+
+.album-grid > child {
+  border-radius: 14px;
+  padding: 6px;
+}
+
+.artist-link {
+  padding: 2px 6px;
+  margin-left: -6px;
+  font-weight: 600;
+}
+
+.star-button:not(.accent) {
+  opacity: 0.4;
+}
+
+.star-button:hover {
+  opacity: 1;
+}
+
+.now-playing-cover {
+  box-shadow: 0 12px 40px 4px color-mix(in srgb, var(--shade-color) 90%, transparent);
+}
+
+/* Album pages: the cover-coloured gradient (set at runtime) shows through the header. */
+.album-page headerbar {
+  background: none;
+  box-shadow: none;
+}
+
+/* Full-window Now Playing: the background is set from the cover at runtime; until then
+   it is the plain window background. Header and lyrics sit on it without their own. */
+.now-playing {
+  background-color: var(--window-bg-color);
+}
+
+.now-playing headerbar {
+  background: none;
+  box-shadow: none;
+}
+
+.now-playing .lyrics,
+.now-playing .lyrics > viewport,
+.now-playing .lyrics > undershoot {
+  background: none;
+  box-shadow: none;
+}
+
+/* Timed lyrics: the line being sung in the regular text colour, the others subtle. */
+.lyrics-line {
+  font-size: 1.3em;
+  font-weight: 800;
+  color: color-mix(in srgb, var(--window-fg-color) 38%, transparent);
+  transition: color 250ms ease-out;
+}
+
+.lyrics-line:hover {
+  color: color-mix(in srgb, var(--window-fg-color) 65%, transparent);
+}
+
+.lyrics-line.current {
+  color: var(--window-fg-color);
+}
+
+.lyrics-plain {
+  font-size: 1.1em;
+  opacity: 0.85;
+}
+
+.format-badge {
+  padding: 1px 8px;
+  border-radius: 99px;
+  background-color: color-mix(in srgb, var(--window-fg-color) 8%, transparent);
+  font-feature-settings: "tnum";
+}
+
+.large-transport {
+  min-width: 48px;
+  min-height: 48px;
+}

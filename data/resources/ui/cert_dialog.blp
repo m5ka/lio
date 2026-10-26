@@ -1,0 +1,28 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.AlertDialog dialog {
+  heading: _("Untrusted Certificate");
+  body: _(
+    "The server's certificate isn't trusted by this computer. Only continue if you recognise this fingerprint, for example because you created the certificate yourself."
+  );
+  close-response: "cancel";
+  default-response: "cancel";
+
+  extra-child: Gtk.Label fingerprint_label {
+    wrap: true;
+    wrap-mode: char;
+    selectable: true;
+    justify: center;
+
+    styles [
+      "monospace",
+      "caption",
+    ]
+  };
+
+  responses [
+    cancel: _("_Cancel"),
+    trust: _("_Trust and Connect") destructive,
+  ]
+}

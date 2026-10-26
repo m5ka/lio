@@ -1,0 +1,120 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioSearchPage: Adw.NavigationPage {
+  title: _("Search");
+  tag: "search";
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.Clamp {
+        maximum-size: 500;
+        tightening-threshold: 500;
+
+        child: Gtk.SearchEntry search_entry {
+          placeholder-text: _("Search artists, albums and songs");
+          search-delay: 150;
+          hexpand: true;
+        };
+      };
+    }
+
+    content: Gtk.Stack stack {
+      transition-type: crossfade;
+
+      Gtk.StackPage {
+        name: "prompt";
+
+        child: Adw.StatusPage {
+          icon-name: "system-search-symbolic";
+          title: _("Search Your Library");
+          description: _("Find artists, albums and songs");
+        };
+      }
+
+      Gtk.StackPage {
+        name: "none";
+
+        child: Adw.StatusPage {
+          icon-name: "edit-find-symbolic";
+          title: _("No Results");
+        };
+      }
+
+      Gtk.StackPage {
+        name: "results";
+
+        child: Gtk.ScrolledWindow {
+          hscrollbar-policy: never;
+
+          child: Adw.Clamp {
+            maximum-size: 1000;
+
+            child: Gtk.Box {
+              orientation: vertical;
+              spacing: 12;
+              margin-top: 18;
+              margin-bottom: 24;
+              margin-start: 12;
+              margin-end: 12;
+
+              Gtk.Label artists_label {
+                label: _("Artists");
+                xalign: 0;
+
+                styles [
+                  "heading",
+                ]
+              }
+
+              Gtk.ListBox artists_list {
+                selection-mode: none;
+
+                styles [
+                  "boxed-list",
+                ]
+              }
+
+              Gtk.Label albums_label {
+                label: _("Albums");
+                xalign: 0;
+                margin-top: 12;
+
+                styles [
+                  "heading",
+                ]
+              }
+
+              Gtk.FlowBox albums_box {
+                selection-mode: none;
+                homogeneous: true;
+                min-children-per-line: 2;
+                max-children-per-line: 8;
+                activate-on-single-click: true;
+              }
+
+              Gtk.Label tracks_label {
+                label: _("Songs");
+                xalign: 0;
+                margin-top: 12;
+
+                styles [
+                  "heading",
+                ]
+              }
+
+              Gtk.ListBox tracks_list {
+                selection-mode: none;
+
+                styles [
+                  "boxed-list",
+                ]
+              }
+            };
+          };
+        };
+      }
+    };
+  };
+}

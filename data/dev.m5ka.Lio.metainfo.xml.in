@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@app_id@</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Lio</name>
+  <summary>Listen to music from your Navidrome server</summary>
+  <description>
+    <p>
+      Lio is a fast, native music player for your Navidrome server. It keeps your
+      whole library at hand, even with tens of thousands of albums, and lets you
+      take your favourite music with you to listen without a connection.
+    </p>
+    <ul>
+      <li>Browse albums, artists, genres and playlists, even in huge libraries</li>
+      <li>Search as you type</li>
+      <li>Gapless playback with ReplayGain</li>
+      <li>Download albums and playlists to listen offline</li>
+      <li>Your favourites, ratings and plays stay in sync with your server</li>
+      <li>Adapts to phones and small windows</li>
+    </ul>
+  </description>
+  <developer id="dev.m5ka">
+    <name>m5ka</name>
+  </developer>
+  <url type="homepage">https://github.com/m5ka/lio</url>
+  <url type="bugtracker">https://github.com/m5ka/lio/issues</url>
+  <url type="vcs-browser">https://github.com/m5ka/lio</url>
+  <url type="contribute">https://github.com/m5ka/lio/blob/main/CONTRIBUTING.md</url>
+  <update_contact>git@m5ka.dev</update_contact>
+  <screenshots>
+    <screenshot type="default">
+      <caption>An album, with its tracks and the player bar</caption>
+      <image type="source" width="1100" height="760">https://raw.githubusercontent.com/m5ka/lio/main/data/screenshots/album.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Home: recently added, recently played and most played albums</caption>
+      <image type="source" width="1100" height="760">https://raw.githubusercontent.com/m5ka/lio/main/data/screenshots/home.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Now Playing, with the cover and playback controls</caption>
+      <image type="source" width="1100" height="760">https://raw.githubusercontent.com/m5ka/lio/main/data/screenshots/now-playing.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The album page on a phone</caption>
+      <image type="source" width="360" height="720">https://raw.githubusercontent.com/m5ka/lio/main/data/screenshots/mobile.png</image>
+    </screenshot>
+  </screenshots>
+  <launchable type="desktop-id">@app_id@.desktop</launchable>
+  <translation type="gettext">@gettext_package@</translation>
+  <content_rating type="oars-1.1"/>
+  <requires>
+    <display_length compare="ge">360</display_length>
+    <internet>first-run</internet>
+  </requires>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+  <branding>
+    <color type="primary" scheme_preference="light">#f6d5e8</color>
+    <color type="primary" scheme_preference="dark">#5c2a4a</color>
+  </branding>
+  <releases>
+    <release version="0.1.0" date="2026-10-25">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

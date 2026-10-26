@@ -1,0 +1,24 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "playlists": {
+      "playlist": [
+        {
+          "id": "4HXXqeUIGxKwh2e1c06GEV",
+          "name": "Fixture Playlist",
+          "songCount": 2,
+          "duration": 40,
+          "owner": "lio",
+          "created": "2026-10-25T15:11:47.914095013Z",
+          "changed": "2026-10-25T15:11:47.920519153Z",
+          "coverArt": "pl-4HXXqeUIGxKwh2e1c06GEV",
+          "readonly": false
+        }
+      ]
+    }
+  }
+}

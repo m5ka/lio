@@ -1,0 +1,139 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "playlist": {
+      "id": "4HXXqeUIGxKwh2e1c06GEV",
+      "name": "Fixture Playlist",
+      "songCount": 2,
+      "duration": 40,
+      "owner": "lio",
+      "created": "2026-10-25T15:11:47.914095013Z",
+      "changed": "2026-10-25T15:11:47.920519153Z",
+      "coverArt": "pl-4HXXqeUIGxKwh2e1c06GEV",
+      "readonly": false,
+      "entry": [
+        {
+          "id": "3rKEOazESAzHaNBwivC9J8",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 1",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 1,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 276867,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "starred": "2026-10-25T15:11:47.949379926Z",
+          "duration": 20,
+          "bitRate": 107,
+          "path": "Lio Fixtures/Gapless Sweep/01 - Sweep Part 1.flac",
+          "created": "2026-10-25T15:04:35.008782349Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 1",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        },
+        {
+          "id": "31UrtO7fNirhyVWPyoBzk0",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 2",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 2,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 325101,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "duration": 20,
+          "bitRate": 127,
+          "path": "Lio Fixtures/Gapless Sweep/02 - Sweep Part 2.flac",
+          "created": "2026-10-25T15:04:35.009557497Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 2",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        }
+      ]
+    }
+  }
+}

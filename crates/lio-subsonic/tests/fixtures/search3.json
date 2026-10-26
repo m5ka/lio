@@ -1,0 +1,343 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.64.2 (10114574)",
+    "openSubsonic": true,
+    "searchResult3": {
+      "album": [
+        {
+          "id": "5bio7Z7d2sFEr1vduQwh3g",
+          "name": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "songCount": 5,
+          "duration": 100,
+          "created": "2026-10-25T15:04:18.725585817Z",
+          "starred": "2026-10-25T15:11:47.950538028Z",
+          "year": 2026,
+          "genre": "Test Tones",
+          "userRating": 0,
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "musicBrainzId": "",
+          "isCompilation": false,
+          "sortName": "gapless sweep",
+          "discTitles": [],
+          "originalReleaseDate": {},
+          "releaseDate": {},
+          "releaseTypes": [],
+          "recordLabels": [],
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "explicitStatus": "",
+          "version": ""
+        }
+      ],
+      "song": [
+        {
+          "id": "3rKEOazESAzHaNBwivC9J8",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 1",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 1,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 276867,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "starred": "2026-10-25T15:11:47.949379926Z",
+          "duration": 20,
+          "bitRate": 107,
+          "path": "Lio Fixtures/Gapless Sweep/01 - Sweep Part 1.flac",
+          "created": "2026-10-25T15:04:35.008782349Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 1",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        },
+        {
+          "id": "31UrtO7fNirhyVWPyoBzk0",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 2",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 2,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 325101,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "duration": 20,
+          "bitRate": 127,
+          "path": "Lio Fixtures/Gapless Sweep/02 - Sweep Part 2.flac",
+          "created": "2026-10-25T15:04:35.009557497Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 2",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        },
+        {
+          "id": "1ScodqJTLONVqVXfUSlyJJ",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 3",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 3,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 388822,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "duration": 20,
+          "bitRate": 152,
+          "path": "Lio Fixtures/Gapless Sweep/03 - Sweep Part 3.flac",
+          "created": "2026-10-25T15:04:35.010328125Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 3",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        },
+        {
+          "id": "5e5G0fTDC4Q7R0hoAcaCya",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 4",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 4,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 3245545,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "duration": 20,
+          "bitRate": 1295,
+          "path": "Lio Fixtures/Gapless Sweep/04 - Sweep Part 4.flac",
+          "created": "2026-10-25T15:04:35.011224141Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 4",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        },
+        {
+          "id": "40XYJ30TL4VRVhrfYwJlAS",
+          "parent": "5bio7Z7d2sFEr1vduQwh3g",
+          "isDir": false,
+          "title": "Sweep Part 5",
+          "album": "Gapless Sweep",
+          "artist": "Lio Fixtures",
+          "track": 5,
+          "year": 2026,
+          "genre": "Test Tones",
+          "coverArt": "al-5bio7Z7d2sFEr1vduQwh3g_da66134a261015ce",
+          "size": 342886,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "duration": 20,
+          "bitRate": 134,
+          "path": "Lio Fixtures/Gapless Sweep/05 - Sweep Part 5.flac",
+          "created": "2026-10-25T15:04:35.00743238Z",
+          "albumId": "5bio7Z7d2sFEr1vduQwh3g",
+          "artistId": "6ZICKXLoebcqVrKxHf9m3j",
+          "type": "music",
+          "bpm": 0,
+          "comment": "",
+          "sortName": "sweep part 5",
+          "mediaType": "song",
+          "musicBrainzId": "",
+          "isrc": [],
+          "genres": [
+            {
+              "name": "Test Tones"
+            }
+          ],
+          "replayGain": {},
+          "channelCount": 2,
+          "samplingRate": 44100,
+          "bitDepth": 16,
+          "moods": [],
+          "artists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayArtist": "Lio Fixtures",
+          "albumArtists": [
+            {
+              "id": "6ZICKXLoebcqVrKxHf9m3j",
+              "name": "Lio Fixtures"
+            }
+          ],
+          "displayAlbumArtist": "Lio Fixtures",
+          "contributors": [],
+          "displayComposer": "",
+          "explicitStatus": "",
+          "groupings": [],
+          "works": [],
+          "movements": []
+        }
+      ]
+    }
+  }
+}

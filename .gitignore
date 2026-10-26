@@ -1,0 +1,17 @@
+/target/
+/build/
+/_build/
+/flatpak-build/
+/.flatpak-builder/
+/.flatpak/
+/.venv/
+*.rs.bk
+*.prof*
+*.log
+.env*
+.idea/
+.vscode/
+*.swp
+*.tmp
+.DS_Store
+/tests/fixtures/music/

@@ -1,0 +1,5 @@
+[
+  {"id": 201, "trackName": "Sweep Part 3", "artistName": "Lio Fixtures", "albumName": "Live", "duration": 45.0, "instrumental": false, "plainLyrics": "live", "syncedLyrics": "[00:01.00] live"},
+  {"id": 202, "trackName": "Sweep Part 3", "artistName": "Lio Fixtures", "albumName": "Other", "duration": 21.0, "instrumental": false, "plainLyrics": "plain only", "syncedLyrics": null},
+  {"id": 203, "trackName": "Sweep Part 3", "artistName": "Lio Fixtures", "albumName": "Single", "duration": 19.0, "instrumental": false, "plainLyrics": "timed", "syncedLyrics": "[00:02.00] timed"}
+]

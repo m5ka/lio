@@ -1,0 +1,41 @@
+using Gtk 4.0;
+using Adw 1;
+// Generic scrolling list page: artists, genres, playlists.
+template $LioListPage: Adw.NavigationPage {
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar header_bar {}
+
+    content: Gtk.Stack stack {
+      transition-type: crossfade;
+
+      Gtk.StackPage {
+        name: "empty";
+
+        child: Adw.StatusPage empty_page {};
+      }
+
+      Gtk.StackPage {
+        name: "list";
+
+        child: Gtk.ScrolledWindow {
+          hscrollbar-policy: never;
+
+          child: Adw.ClampScrollable {
+            maximum-size: 900;
+            tightening-threshold: 600;
+
+            child: Gtk.ListView list_view {
+              single-click-activate: true;
+
+              styles [
+                "navigation-sidebar",
+                "lio-list",
+              ]
+            };
+          };
+        };
+      }
+    };
+  };
+}

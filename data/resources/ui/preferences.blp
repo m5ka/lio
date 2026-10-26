@@ -1,0 +1,133 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LioPreferences: Adw.PreferencesDialog {
+  search-enabled: true;
+
+  Adw.PreferencesPage {
+    title: _("Playback");
+    icon-name: "media-playback-start-symbolic";
+
+    Adw.PreferencesGroup {
+      title: _("Streaming Quality");
+      description: _("Lower qualities are transcoded by the server and use less data");
+
+      Adw.ComboRow stream_unmetered_row {
+        title: _("On Unlimited Networks");
+        model: quality_model;
+      }
+
+      Adw.ComboRow stream_metered_row {
+        title: _("On Metered Networks");
+        model: quality_model;
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("Sound");
+
+      Adw.ComboRow replaygain_row {
+        title: _("Volume Normalization");
+        subtitle: _("Uses ReplayGain information when available");
+
+        model: Gtk.StringList {
+          strings [
+            _("Off"),
+            _("Per Track"),
+            _("Per Album"),
+            _("Automatic"),
+          ]
+        };
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.SwitchRow close_to_background_row {
+        title: _("Keep Playing When Closed");
+        subtitle: _("Music continues after the window is closed");
+      }
+    }
+  }
+
+  Adw.PreferencesPage storage_page {
+    title: _("Storage");
+    icon-name: "drive-harddisk-symbolic";
+  }
+
+  Adw.PreferencesPage {
+    title: _("Library");
+    icon-name: "folder-music-symbolic";
+
+    Adw.PreferencesGroup {
+      Adw.SwitchRow scrobble_row {
+        title: _("Report Plays");
+        subtitle: _("Send what you listen to to your server, for play counts and scrobbling");
+      }
+
+      Adw.SwitchRow notifications_row {
+        title: _("Song Notifications");
+        subtitle: _("Show a notification when the song changes and Lio isn't focused");
+      }
+
+      Adw.SwitchRow online_lyrics_row {
+        title: _("Find Lyrics Online");
+        subtitle: _("When the server has no timed lyrics, look them up on lrclib.net. This sends the song's title, artist and album there");
+      }
+    }
+  }
+
+  Adw.PreferencesPage {
+    title: _("Account");
+    icon-name: "avatar-default-symbolic";
+
+    Adw.PreferencesGroup {
+      title: _("Server");
+
+      Adw.ActionRow server_row {
+        title: _("Address");
+        subtitle-selectable: true;
+
+        styles [
+          "property",
+        ]
+      }
+
+      Adw.ActionRow user_row {
+        title: _("Username");
+
+        styles [
+          "property",
+        ]
+      }
+
+      Adw.ActionRow version_row {
+        title: _("Server Version");
+
+        styles [
+          "property",
+        ]
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.ButtonRow {
+        title: _("_Sign Out…");
+        use-underline: true;
+        action-name: "app.sign-out";
+
+        styles [
+          "destructive-action",
+        ]
+      }
+    }
+  }
+}
+
+Gtk.StringList quality_model {
+  strings [
+    _("Original"),
+    _("High (Opus 192 kbps)"),
+    _("Standard (Opus 128 kbps)"),
+    _("MP3 320 kbps"),
+  ]
+}

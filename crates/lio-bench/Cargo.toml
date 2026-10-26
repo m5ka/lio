@@ -1,0 +1,20 @@
+[package]
+name = "lio-bench"
+description = "Synthetic large-library benchmark for Lio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+lio-store.workspace = true
+rusqlite.workspace = true
+rand.workspace = true
+tempfile.workspace = true
+lio-subsonic.workspace = true
