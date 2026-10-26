@@ -301,7 +301,8 @@ template $LioNowPlaying: Adw.Bin {
                   "lyrics",
                 ]
 
-                child: Gtk.Box lyrics_box {
+                // Fades out where more lyrics can be scrolled to.
+                child: $LioFadeBox lyrics_box {
                   orientation: vertical;
                   spacing: 10;
                   margin-top: 8;

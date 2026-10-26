@@ -122,6 +122,7 @@ mod imp {
             crate::widgets::waves::LioWaves::ensure_type();
             crate::widgets::cd::LioCd::ensure_type();
             crate::widgets::milkdrop_view::LioMilkdropView::ensure_type();
+            crate::widgets::fade_box::LioFadeBox::ensure_type();
             klass.bind_template();
             klass.install_action("now-playing.close", None, |screen, _, _| {
                 if let Some(win) = screen.window() {

@@ -9,6 +9,7 @@ pub mod cover_view;
 pub mod download_toggle;
 pub mod editable_rows;
 pub mod error_toast;
+pub mod fade_box;
 pub mod item_menu;
 pub mod milkdrop;
 pub mod milkdrop_view;
