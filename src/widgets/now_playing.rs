@@ -508,7 +508,8 @@ impl LioNowPlaying {
                 self,
                 async move {
                     if let Some(texture) = covers.load(&id, SIZE_FULL, None).await {
-                        s.apply_tint(&texture);
+                        let accent = crate::widgets::tint::cover_accent(&id).await;
+                        s.apply_tint(&texture, accent);
                     }
                 }
             ));
@@ -831,16 +832,22 @@ impl LioNowPlaying {
     }
 
     /// Fills the screen with a translucent-looking wash of the cover's colour: the
-    /// colour mixed into the window background, plus a glow behind the cover.
-    fn apply_tint(&self, texture: &gdk::Texture) {
+    /// colour mixed into the window background, plus a glow behind the cover. The
+    /// controls are accented with the cover's most vivid colour.
+    fn apply_tint(&self, texture: &gdk::Texture, accent: Option<(u8, u8, u8)>) {
         let Some((r, g, b)) = crate::widgets::tint::average_colour(texture) else {
             return;
         };
         self.imp().waves.set_colour((r, g, b));
         self.imp().cd.set_colour((r, g, b));
         self.imp().cd_spectrum.set_colour((r, g, b));
+        // Transport, seek and toggles take the cover's most vivid colour as accent.
+        let accent = accent
+            .map(crate::widgets::tint::accent_declarations)
+            .unwrap_or_default();
         let css = format!(
             ".now-playing {{
+               {accent}
                background-color: color-mix(in srgb, rgb({r},{g},{b}) 30%, var(--window-bg-color));
                background-image:
                  radial-gradient(ellipse at 22% 45%, rgba({r},{g},{b},0.5), transparent 60%),

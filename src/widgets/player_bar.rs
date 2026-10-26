@@ -50,6 +50,7 @@ mod imp {
         pub repeat_button: TemplateChild<gtk::Button>,
         pub controller: RefCell<Option<PlaybackController>>,
         pub cancellable: RefCell<Option<gio::Cancellable>>,
+        pub accent: RefCell<Option<crate::widgets::tint::Tint>>,
         pub updating: Cell<bool>,
     }
 
@@ -205,6 +206,7 @@ impl LioPlayerBar {
                     SIZE_ROW,
                     &imp.cancellable,
                 );
+                self.update_accent(track.id(), track.cover_art_id());
             }
             None => {
                 imp.title_label.set_label("");
@@ -216,8 +218,49 @@ impl LioPlayerBar {
                     SIZE_ROW,
                     &imp.cancellable,
                 );
+                self.set_accent(None);
             }
         }
+    }
+
+    /// Accents the controls with the most vivid colour of `cover_id`, once it loads.
+    fn update_accent(&self, track_id: &str, cover_id: Option<&str>) {
+        let Some(id) = cover_id.filter(|id| !id.is_empty()).map(str::to_owned) else {
+            self.set_accent(None);
+            return;
+        };
+        let track_id = track_id.to_owned();
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to = bar)]
+            self,
+            async move {
+                let accent = crate::widgets::tint::cover_accent(&id).await;
+                // Skip late results for a track that is no longer playing.
+                let current = bar
+                    .imp()
+                    .controller
+                    .borrow()
+                    .as_ref()
+                    .and_then(|c| c.current_track())
+                    .is_some_and(|t| t.id() == track_id);
+                if current {
+                    bar.set_accent(accent);
+                }
+            }
+        ));
+    }
+
+    /// `None` falls back to the system accent.
+    fn set_accent(&self, colour: Option<(u8, u8, u8)>) {
+        self.imp()
+            .accent
+            .borrow_mut()
+            .get_or_insert_with(|| crate::widgets::tint::Tint::new(self))
+            .set(
+                &colour
+                    .map(crate::widgets::tint::accent_declarations)
+                    .unwrap_or_default(),
+            );
     }
 
     fn update_playing(&self, playing: bool) {
