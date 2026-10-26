@@ -29,6 +29,18 @@ pub const LOCALEDIR: &str = match option_env!("LIO_LOCALEDIR") {
     None => "/usr/share/locale",
 };
 
+/// Installed data directory (set by Meson); `None` for plain cargo builds.
+const PKGDATADIR: Option<&str> = option_env!("LIO_PKGDATADIR");
+
+/// MilkDrop presets for the Visualizer view: the installed copy, or the source tree's
+/// when built with plain cargo.
+pub fn presets_dir() -> std::path::PathBuf {
+    match PKGDATADIR {
+        Some(dir) => std::path::Path::new(dir).join("presets"),
+        None => std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data/presets"),
+    }
+}
+
 /// Base path of the embedded GResource bundle (the same for every profile).
 pub const RESOURCE_BASE: &str = "/dev/m5ka/Lio";
 

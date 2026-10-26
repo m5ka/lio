@@ -106,6 +106,10 @@ mod imp {
         /// Tracks in play order, for the queue sidebar.
         pub queue_model: RefCell<Option<gio::ListStore>>,
         pub prefetched: Cell<bool>,
+        /// Views showing the spectrum; analysis runs while there is at least one.
+        pub spectrum_users: Cell<u32>,
+        /// Views using raw samples; copying runs while there is at least one.
+        pub pcm_users: Cell<u32>,
         pub ticker: RefCell<Option<glib::SourceId>>,
         pub save_pending: Cell<bool>,
         /// URI of the stream the controller considers current.
@@ -204,6 +208,7 @@ impl PlaybackController {
         match Player::new(None) {
             Ok(player) => {
                 player.set_volume(settings.volume());
+                player.set_fade_duration(settings.pause_fade());
                 let player = Rc::new(player);
                 player.connect_events(glib::clone!(
                     #[weak]
@@ -213,6 +218,20 @@ impl PlaybackController {
                 imp.player.replace(Some(player));
             }
             Err(e) => tracing::error!("audio playback unavailable: {e}"),
+        }
+        for key in ["fade-on-pause", "fade-duration"] {
+            settings.connect_changed_key(
+                key,
+                glib::clone!(
+                    #[weak]
+                    obj,
+                    move |settings| {
+                        if let Some(player) = obj.player() {
+                            player.set_fade_duration(settings.pause_fade());
+                        }
+                    }
+                ),
+            );
         }
         settings.connect_changed_key(
             "replaygain",
@@ -288,6 +307,47 @@ impl PlaybackController {
 
     fn player(&self) -> Option<Rc<Player>> {
         self.imp().player.borrow().clone()
+    }
+
+    /// Starts or stops wanting spectrum analysis for one view. Counted, so a view going
+    /// away doesn't stop it for another that has just appeared (e.g. while the Now
+    /// Playing views crossfade).
+    pub fn want_spectrum(&self, wanted: bool) {
+        let users = &self.imp().spectrum_users;
+        let count = if wanted {
+            users.get() + 1
+        } else {
+            users.get().saturating_sub(1)
+        };
+        users.set(count);
+        if let Some(player) = self.player() {
+            player.set_spectrum_enabled(count > 0);
+        }
+    }
+
+    /// Starts or stops wanting raw samples for one view; counted like
+    /// [`want_spectrum`](Self::want_spectrum).
+    pub fn want_pcm(&self, wanted: bool) {
+        let users = &self.imp().pcm_users;
+        let count = if wanted {
+            users.get() + 1
+        } else {
+            users.get().saturating_sub(1)
+        };
+        users.set(count);
+        if let Some(player) = self.player() {
+            player.set_pcm_enabled(count > 0);
+        }
+    }
+
+    /// Interleaved stereo samples heard since the last call, while wanted.
+    pub fn pcm(&self) -> Vec<f32> {
+        self.player().map_or_else(Vec::new, |player| player.pcm())
+    }
+
+    /// The spectrum of what is being heard now, while analysis is on.
+    pub fn spectrum(&self) -> Option<lio_playback::SpectrumFrame> {
+        self.player()?.spectrum()
     }
 
     fn settings(&self) -> Settings {
@@ -813,9 +873,15 @@ impl PlaybackController {
         let Some(player) = self.player() else { return };
         let imp = self.imp();
         if imp.playing.get() {
-            player.pause();
+            self.pause();
         } else if imp.active.get() {
+            // Resuming during a fade-out: the pipeline never stopped, so no state change
+            // will report it; show it as playing now.
+            let was_fading_out = player.is_fading_out();
             player.play();
+            if was_fading_out && !imp.playing.replace(true) {
+                self.notify_playing();
+            }
         } else {
             let cursor = imp.queue.borrow().cursor();
             if let Some(c) = cursor {
@@ -833,6 +899,10 @@ impl PlaybackController {
     pub fn pause(&self) {
         if let Some(player) = self.player() {
             player.pause();
+            // With a fade, the pipeline pauses only when it ends; show it paused now.
+            if player.is_fading_out() && self.imp().playing.replace(false) {
+                self.notify_playing();
+            }
         }
     }
 

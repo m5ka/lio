@@ -19,10 +19,13 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          pacman -Syu --noconfirm --needed base-devel git rust gtk4 libadwaita \
+          pacman -Syu --noconfirm --needed base-devel git rust cmake gtk4 libadwaita \
             gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-libav \
             glycin sqlite blueprint-compiler python-gobject ffmpeg flac
       - uses: actions/checkout@v4
+        with:
+          # libprojectM, built into Lio (no system package on Arch).
+          submodules: recursive
       - uses: Swatinem/rust-cache@v2
       - name: Generate test fixtures
         run: tests/fixtures/generate-music.sh
@@ -45,11 +48,14 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          pacman -Syu --noconfirm --needed base-devel git rust gtk4 libadwaita \
+          pacman -Syu --noconfirm --needed base-devel git rust cmake gtk4 libadwaita \
             gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-libav \
             glycin sqlite blueprint-compiler python python-gobject ffmpeg flac \
             xorg-server-xvfb dbus curl
       - uses: actions/checkout@v4
+        with:
+          # libprojectM, built into Lio (no system package on Arch).
+          submodules: recursive
       - uses: Swatinem/rust-cache@v2
       - name: Generate test fixtures
         run: tests/fixtures/generate-music.sh

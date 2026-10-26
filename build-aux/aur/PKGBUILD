@@ -12,6 +12,7 @@ url="https://github.com/m5ka/lio"
 license=('GPL-3.0-or-later')
 depends=(
   'dbus'
+  'libglvnd'
   'glib2'
   'glycin'
   'gst-plugins-base'
@@ -25,13 +26,18 @@ optdepends=(
   'gst-libav: AAC, ALAC and other formats'
   'gst-plugins-bad: additional formats'
 )
-makedepends=('blueprint-compiler' 'cargo' 'git' 'meson')
+makedepends=('blueprint-compiler' 'cargo' 'cmake' 'git' 'meson')
 provides=('lio')
 conflicts=('lio')
 # Cargo does its own LTO; makepkg's C LTO flags can break bundled C crates (aws-lc).
 options=('!lto')
-source=("lio::git+https://github.com/m5ka/lio.git")
-sha256sums=('SKIP')
+# libprojectM (third_party/libprojectM) and its projectm-eval are git submodules.
+source=(
+  "lio::git+https://github.com/m5ka/lio.git"
+  "libprojectM::git+https://github.com/projectM-visualizer/projectm.git"
+  "projectm-eval::git+https://github.com/projectM-visualizer/projectm-eval.git"
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP')
 
 pkgver() {
   cd lio
@@ -41,6 +47,13 @@ pkgver() {
 
 prepare() {
   cd lio
+  git submodule init
+  git config submodule.third_party/libprojectM.url "$srcdir/libprojectM"
+  git -c protocol.file.allow=always submodule update
+  git -C third_party/libprojectM submodule init
+  git -C third_party/libprojectM config submodule.vendor/projectm-eval.url "$srcdir/projectm-eval"
+  git -C third_party/libprojectM -c protocol.file.allow=always submodule update
+
   export CARGO_HOME="$srcdir/cargo-home"
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"

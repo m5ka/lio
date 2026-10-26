@@ -3,22 +3,27 @@
 pub mod adaptive;
 pub mod add_to_playlist;
 pub mod album_tile;
+pub mod cd;
 pub mod cert_dialog;
 pub mod cover_view;
 pub mod download_toggle;
 pub mod editable_rows;
 pub mod error_toast;
 pub mod item_menu;
+pub mod milkdrop;
+pub mod milkdrop_view;
 pub mod navigate;
 pub mod now_playing;
 pub mod pages;
 pub mod player_bar;
 pub mod preferences;
 pub mod queue_sidebar;
+pub mod spectrum_levels;
 pub mod storage;
 pub mod tint;
 pub mod track_list_row;
 pub mod track_row;
+pub mod waves;
 pub mod window;
 
 pub use album_tile::LioAlbumTile;

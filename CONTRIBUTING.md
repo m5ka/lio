@@ -13,10 +13,16 @@ crates/lio-store/       SQLite mirror, sync, search, queue, TrackStore (stream/c
                         downloads, scrobbling (no GTK)
 crates/lio-playback/    GStreamer: playbin3 player (gapless, ReplayGain) and the
                         `liosrc` element that reads through the TrackStore (no GTK)
+crates/lio-projectm/    libprojectM bindings for the Visualizer view: system library
+                        or the bundled third_party/libprojectM submodule
 crates/lio-bench/       Synthetic large-library benchmark
 tests/integration/      Tests against a real Navidrome (tests/test-server.sh)
 build-aux/              Flatpak manifests, AUR package, icon and maintenance scripts
+third_party/            Git submodules (libprojectM); see third_party/README.md
 ```
+
+Clone with `--recursive`, or run `git submodule update --init --recursive` in an existing
+clone.
 
 The library crates have no GTK dependency so their tests run headless.
 
@@ -52,6 +58,8 @@ Before sending a change: `cargo fmt --all` and
 | `LIO_TEST_SECTION=<home\|albums\|…\|search>` or `playlist:<name>`, `LIO_TEST_SEARCH=<text>` | Open a section or sidebar playlist |
 | `LIO_TEST_ACTION=<app.x\|win.x>` | Activate an action (opens dialogs) |
 | `LIO_TEST_SIZE=<w>x<h>` | Initial window size |
+| `LIO_TEST_PRESET=<file name>` | In the Visualizer view, show only this MilkDrop preset |
+| `LIO_TEST_SHOW_CONTROLS=1` | Keep the Visualizer view's controls showing |
 | `LIO_SCREENSHOT=<file.png>`, `LIO_SCREENSHOT_DELAY_MS` | Render the window to a PNG and quit |
 | `LIO_AUDIO_SINK=fakesink` | Play without sound |
 | `LIO_FRAME_STATS=1`, `LIO_AUTOSCROLL=albums\|tracks` | Frame timing / scripted scroll |

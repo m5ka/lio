@@ -48,6 +48,12 @@ fn main() {
         "lio.gresource",
     );
     compile_dev_schema(&manifest_dir, &out_dir);
+
+    // A shared libprojectM looks up `glBindFramebuffer` at run time; export Lio's
+    // replacement (src/widgets/milkdrop.rs) so it finds that one before libGL's.
+    if env::var("DEP_PROJECTM_LINKAGE").as_deref() == Ok("dynamic") {
+        println!("cargo:rustc-link-arg-bins=-Wl,--export-dynamic-symbol=glBindFramebuffer");
+    }
 }
 
 fn blueprint_compiler(manifest_dir: &Path) -> PathBuf {

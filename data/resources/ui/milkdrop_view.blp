@@ -1,0 +1,55 @@
+using Gtk 4.0;
+using Adw 1;
+// The Visualizer view: the MilkDrop picture, with its controls fading in on hover.
+template $LioMilkdropView: Adw.Bin {
+  child: Overlay overlay {
+    child: $LioMilkdrop milkdrop {};
+
+    [overlay]
+    Revealer controls_revealer {
+      transition-type: crossfade;
+      valign: end;
+      halign: center;
+      margin-bottom: 12;
+      margin-start: 12;
+      margin-end: 12;
+
+      child: Box {
+        spacing: 4;
+
+        styles [
+          "osd",
+          "visualizer-controls",
+        ]
+
+        MenuButton preset_button {
+          always-show-arrow: true;
+          tooltip-text: _("Choose Visualization");
+
+          child: Label preset_label {
+            ellipsize: end;
+            max-width-chars: 22;
+          };
+
+          styles [
+            "flat",
+          ]
+        }
+
+        ToggleButton cycle_button {
+          icon-name: "media-playlist-shuffle-symbolic";
+          tooltip-text: _("Change Visualization Automatically");
+          action-name: "visualizer.visualizer-cycle";
+
+          accessibility {
+            label: _("Change Visualization Automatically");
+          }
+
+          styles [
+            "flat",
+          ]
+        }
+      };
+    }
+  };
+}

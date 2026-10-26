@@ -11,6 +11,7 @@ data/resources/ui/cert_dialog.blp
 data/resources/ui/favourites_page.blp
 data/resources/ui/home_page.blp
 data/resources/ui/list_row.blp
+data/resources/ui/milkdrop_view.blp
 data/resources/ui/now_playing.blp
 data/resources/ui/player_bar.blp
 data/resources/ui/playlist_page.blp
@@ -31,10 +32,13 @@ src/models/mod.rs
 src/offline.rs
 src/playback_controller.rs
 src/widgets/add_to_playlist.rs
+src/widgets/cd.rs
 src/widgets/download_toggle.rs
 src/widgets/editable_rows.rs
 src/widgets/error_toast.rs
 src/widgets/item_menu.rs
+src/widgets/milkdrop.rs
+src/widgets/milkdrop_view.rs
 src/widgets/navigate.rs
 src/widgets/now_playing.rs
 src/widgets/pages/album_grid.rs
@@ -49,4 +53,5 @@ src/widgets/pages/sign_in_page.rs
 src/widgets/player_bar.rs
 src/widgets/queue_sidebar.rs
 src/widgets/storage.rs
+src/widgets/waves.rs
 src/widgets/window.rs

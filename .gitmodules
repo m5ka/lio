@@ -1,0 +1,3 @@
+[submodule "third_party/libprojectM"]
+	path = third_party/libprojectM
+	url = https://github.com/projectM-visualizer/projectm.git

@@ -130,3 +130,9 @@ playerbar {
   min-width: 48px;
   min-height: 48px;
 }
+
+/* Visualizer controls over the MilkDrop picture. */
+.visualizer-controls {
+  border-radius: 999px;
+  padding: 4px;
+}

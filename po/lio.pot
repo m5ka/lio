@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lio\n"
 "Report-Msgid-Bugs-To: https://github.com/m5ka/lio/issues\n"
-"POT-Creation-Date: 2026-10-25 23:50+0000\n"
+"POT-Creation-Date: 2026-10-26 12:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,7 @@ msgid "Music Player"
 msgstr ""
 
 #: data/dev.m5ka.Lio.desktop.in:4 data/dev.m5ka.Lio.metainfo.xml.in:7
-#: src/application.rs:557
+#: src/application.rs:559
 msgid "Listen to music from your Navidrome server"
 msgstr ""
 
@@ -92,96 +92,146 @@ msgstr ""
 msgid "First release."
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:32
+#: data/dev.m5ka.Lio.gschema.xml:39
 msgid "Normalised server URL"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:36
+#: data/dev.m5ka.Lio.gschema.xml:43
 msgid "Username on the server"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:40
+#: data/dev.m5ka.Lio.gschema.xml:47
 msgid "How requests are authenticated"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:44
+#: data/dev.m5ka.Lio.gschema.xml:51
 msgid "SHA-256 fingerprint of a certificate the user explicitly trusted"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:48
+#: data/dev.m5ka.Lio.gschema.xml:55
 msgid "Server type reported by ping"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:52
+#: data/dev.m5ka.Lio.gschema.xml:59
 msgid "Server version reported by ping"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:56
+#: data/dev.m5ka.Lio.gschema.xml:63
 msgid "Subsonic API version reported by ping"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:60
+#: data/dev.m5ka.Lio.gschema.xml:67
 msgid "OpenSubsonic extensions supported by the server"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:66
+#: data/dev.m5ka.Lio.gschema.xml:73
 msgid "Streaming quality on unmetered networks"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:70
+#: data/dev.m5ka.Lio.gschema.xml:77
 msgid "Streaming quality on metered networks"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:74
+#: data/dev.m5ka.Lio.gschema.xml:81
 msgid "Quality of offline downloads"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:78
+#: data/dev.m5ka.Lio.gschema.xml:85
 msgid "Allow downloads on metered connections"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:83
+#: data/dev.m5ka.Lio.gschema.xml:90
 msgid "Maximum size of the automatic audio cache in MiB"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:87
+#: data/dev.m5ka.Lio.gschema.xml:94
 msgid "ReplayGain mode"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:88
+#: data/dev.m5ka.Lio.gschema.xml:95
 msgid ""
 "Auto uses album gain when an album plays in order, track gain otherwise."
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:92
+#: data/dev.m5ka.Lio.gschema.xml:99
 msgid "Report plays to the server"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:96
+#: data/dev.m5ka.Lio.gschema.xml:103
 msgid "Show a notification when the track changes"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:100
-msgid "Keep playing when the window is closed"
+#: data/dev.m5ka.Lio.gschema.xml:107
+msgid "Fade when pausing"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:104
-msgid "Only show and play downloaded and cached music"
-msgstr ""
-
-#: data/dev.m5ka.Lio.gschema.xml:109
-msgid "Playback volume"
+#: data/dev.m5ka.Lio.gschema.xml:108
+msgid ""
+"Fade out when pausing and back in when resuming, instead of cutting the "
+"sound."
 msgstr ""
 
 #: data/dev.m5ka.Lio.gschema.xml:113
+msgid "Pause fade duration"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:114
+msgid "How long the pause and resume fades take, in seconds."
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:118
+msgid "Keep playing when the window is closed"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:122
+msgid "Only show and play downloaded and cached music"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:127
+msgid "Playback volume"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:131
 msgid "Sort order of the album grid"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:119
+#: data/dev.m5ka.Lio.gschema.xml:137
 msgid "Look up timed lyrics on lrclib.net when the server has none"
 msgstr ""
 
-#: data/dev.m5ka.Lio.gschema.xml:123
+#: data/dev.m5ka.Lio.gschema.xml:141
+msgid "What fills the album art space on the Now Playing screen"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:142
+msgid ""
+"The album art; waves: a line rippling with the music on a block of the album "
+"art's colour; CD: the album art as a disc that turns while music plays; CD + "
+"Spectrum: the disc surrounded by a glowing spectrum; or Visualizer: MilkDrop "
+"visuals from projectM."
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:146
+msgid "Change the visualization automatically"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:147
+msgid ""
+"In the Visualizer view, move on to another visualization every half minute "
+"of playback."
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:151
+msgid "Last visualization shown"
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:152
+msgid ""
+"File name of the MilkDrop preset last shown in the Visualizer view; shown "
+"again first when not changing automatically."
+msgstr ""
+
+#: data/dev.m5ka.Lio.gschema.xml:156
 msgid "Show lyrics on the Now Playing screen"
 msgstr ""
 
@@ -306,69 +356,104 @@ msgstr ""
 msgid "Albums you add and play will show up here"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:36 data/resources/ui/now_playing.blp:40
+#: data/resources/ui/milkdrop_view.blp:27
+msgid "Choose Visualization"
+msgstr ""
+
+#: data/resources/ui/milkdrop_view.blp:41
+#: data/resources/ui/milkdrop_view.blp:45
+msgid "Change Visualization Automatically"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:35 data/resources/ui/now_playing.blp:39
 msgid "Close Now Playing"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:47 data/resources/ui/now_playing.blp:50
+#: data/resources/ui/now_playing.blp:46 data/resources/ui/now_playing.blp:50
+msgid "View"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:57 data/resources/ui/now_playing.blp:60
 #: data/resources/ui/playlist_page.blp:11
-#: data/resources/ui/playlist_page.blp:15 src/widgets/now_playing.rs:711
+#: data/resources/ui/playlist_page.blp:15 src/widgets/now_playing.rs:777
 msgid "More"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:58 data/resources/ui/now_playing.blp:62
-#: src/widgets/now_playing.rs:663
+#: data/resources/ui/now_playing.blp:69 data/resources/ui/now_playing.blp:73
+#: src/widgets/now_playing.rs:729
 msgid "Fullscreen"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:69 data/resources/ui/now_playing.blp:86
-#: data/resources/ui/now_playing.blp:92 data/resources/ui/player_bar.blp:240
+#: data/resources/ui/now_playing.blp:80 data/resources/ui/now_playing.blp:97
+#: data/resources/ui/now_playing.blp:103 data/resources/ui/player_bar.blp:240
 #: data/resources/ui/player_bar.blp:259 data/resources/ui/player_bar.blp:269
 msgid "Volume"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:152
+#: data/resources/ui/now_playing.blp:169 src/widgets/cd.rs:101
 msgid "Album cover"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:283 data/resources/ui/player_bar.blp:44
+#: data/resources/ui/now_playing.blp:328 data/resources/ui/player_bar.blp:44
 msgid "Position"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:309 data/resources/ui/player_bar.blp:195
+#: data/resources/ui/now_playing.blp:354 data/resources/ui/player_bar.blp:195
 #: data/resources/ui/player_bar.blp:204 data/resources/ui/shortcuts.blp:44
 msgid "Shuffle"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:324 data/resources/ui/now_playing.blp:335
+#: data/resources/ui/now_playing.blp:369 data/resources/ui/now_playing.blp:380
 #: data/resources/ui/player_bar.blp:141 data/resources/ui/player_bar.blp:151
 #: src/desktop/tray.rs:181
 msgid "Previous"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:341 data/resources/ui/now_playing.blp:353
+#: data/resources/ui/now_playing.blp:386 data/resources/ui/now_playing.blp:398
 #: data/resources/ui/player_bar.blp:157 data/resources/ui/player_bar.blp:169
-#: src/desktop/tray.rs:178 src/widgets/now_playing.rs:720
+#: src/desktop/tray.rs:178 src/widgets/now_playing.rs:786
 #: src/widgets/player_bar.rs:228
 msgid "Play"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:359 data/resources/ui/now_playing.blp:370
+#: data/resources/ui/now_playing.blp:404 data/resources/ui/now_playing.blp:415
 #: data/resources/ui/player_bar.blp:175 data/resources/ui/player_bar.blp:185
 #: src/desktop/tray.rs:180
 msgid "Next"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:381 data/resources/ui/now_playing.blp:391
+#: data/resources/ui/now_playing.blp:425 data/resources/ui/now_playing.blp:435
 msgid "Lyrics"
 msgstr ""
 
-#: data/resources/ui/now_playing.blp:397 data/resources/ui/player_bar.blp:210
+#: data/resources/ui/now_playing.blp:441 data/resources/ui/player_bar.blp:210
 #: data/resources/ui/player_bar.blp:219 data/resources/ui/shortcuts.blp:49
 msgid "Repeat"
 msgstr ""
 
-#: data/resources/ui/player_bar.blp:63 data/resources/ui/shortcuts.blp:63
+#: data/resources/ui/now_playing.blp:462 data/resources/ui/preferences.blp:70
+msgid "Album Art"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:468 data/resources/ui/preferences.blp:71
+#: src/widgets/waves.rs:78
+msgid "Waves"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:474 data/resources/ui/preferences.blp:72
+msgid "CD"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:480 data/resources/ui/preferences.blp:73
+msgid "CD + Spectrum"
+msgstr ""
+
+#: data/resources/ui/now_playing.blp:486 data/resources/ui/preferences.blp:74
+msgid "Visualizer"
+msgstr ""
+
+#: data/resources/ui/player_bar.blp:63 data/resources/ui/preferences.blp:63
+#: data/resources/ui/shortcuts.blp:63
 msgid "Now Playing"
 msgstr ""
 
@@ -438,85 +523,105 @@ msgstr ""
 msgid "Automatic"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:46
+#: data/resources/ui/preferences.blp:44
+msgid "Fade When Pausing"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:45
+msgid "Fade out when pausing and back in when resuming"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:49
+msgid "Fade Duration"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:50
+msgid "In seconds"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:66
+msgid "Album Art Space"
+msgstr ""
+
+#: data/resources/ui/preferences.blp:82
 msgid "Keep Playing When Closed"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:47
+#: data/resources/ui/preferences.blp:83
 msgid "Music continues after the window is closed"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:53
+#: data/resources/ui/preferences.blp:89
 msgid "Storage"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:58 data/resources/ui/window.blp:240
+#: data/resources/ui/preferences.blp:94 data/resources/ui/window.blp:240
 msgid "Library"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:63
+#: data/resources/ui/preferences.blp:99
 msgid "Report Plays"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:64
+#: data/resources/ui/preferences.blp:100
 msgid "Send what you listen to to your server, for play counts and scrobbling"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:68
+#: data/resources/ui/preferences.blp:104
 msgid "Song Notifications"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:69
+#: data/resources/ui/preferences.blp:105
 msgid "Show a notification when the song changes and Lio isn't focused"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:73
+#: data/resources/ui/preferences.blp:109
 msgid "Find Lyrics Online"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:74
+#: data/resources/ui/preferences.blp:111
 msgid ""
 "When the server has no timed lyrics, look them up on lrclib.net. This sends "
 "the song's title, artist and album there"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:80
+#: data/resources/ui/preferences.blp:118
 msgid "Account"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:84
+#: data/resources/ui/preferences.blp:122
 msgid "Server"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:87
+#: data/resources/ui/preferences.blp:125
 msgid "Address"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:96 data/resources/ui/sign_in_page.blp:40
+#: data/resources/ui/preferences.blp:134 data/resources/ui/sign_in_page.blp:40
 msgid "Username"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:104
+#: data/resources/ui/preferences.blp:142
 msgid "Server Version"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:114
+#: data/resources/ui/preferences.blp:152
 msgid "_Sign Out…"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:128 src/widgets/storage.rs:88
+#: data/resources/ui/preferences.blp:166 src/widgets/storage.rs:88
 msgid "Original"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:129 src/widgets/storage.rs:89
+#: data/resources/ui/preferences.blp:167 src/widgets/storage.rs:89
 msgid "High (Opus 192 kbps)"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:130 src/widgets/storage.rs:90
+#: data/resources/ui/preferences.blp:168 src/widgets/storage.rs:90
 msgid "Standard (Opus 128 kbps)"
 msgstr ""
 
-#: data/resources/ui/preferences.blp:131 src/widgets/storage.rs:91
+#: data/resources/ui/preferences.blp:169 src/widgets/storage.rs:91
 msgid "MP3 320 kbps"
 msgstr ""
 
@@ -766,7 +871,7 @@ msgstr ""
 msgid "Show Lio"
 msgstr ""
 
-#: src/desktop/tray.rs:179 src/widgets/now_playing.rs:718
+#: src/desktop/tray.rs:179 src/widgets/now_playing.rs:784
 #: src/widgets/pages/downloads_page.rs:203 src/widgets/player_bar.rs:226
 msgid "Pause"
 msgstr ""
@@ -794,23 +899,23 @@ msgstr ""
 msgid "Downloads aren't available"
 msgstr ""
 
-#: src/playback_controller.rs:426
+#: src/playback_controller.rs:486
 msgid "Nothing in the queue is available offline"
 msgstr ""
 
-#: src/playback_controller.rs:435
+#: src/playback_controller.rs:495
 msgid "Audio playback isn't available"
 msgstr ""
 
-#: src/playback_controller.rs:450
+#: src/playback_controller.rs:510
 msgid "Can't play this track"
 msgstr ""
 
-#: src/playback_controller.rs:484
+#: src/playback_controller.rs:544
 msgid "Skipped songs that aren't available offline"
 msgstr ""
 
-#: src/playback_controller.rs:640
+#: src/playback_controller.rs:700
 msgid "Can't play this track, skipping it"
 msgstr ""
 
@@ -904,7 +1009,7 @@ msgstr ""
 msgid "_Add to Queue"
 msgstr ""
 
-#: src/widgets/item_menu.rs:60 src/widgets/now_playing.rs:700
+#: src/widgets/item_menu.rs:60 src/widgets/now_playing.rs:766
 msgid "Add to _Playlist…"
 msgstr ""
 
@@ -916,7 +1021,7 @@ msgstr ""
 msgid "_Star"
 msgstr ""
 
-#: src/widgets/item_menu.rs:84 src/widgets/now_playing.rs:692
+#: src/widgets/item_menu.rs:84 src/widgets/now_playing.rs:758
 msgid "_Clear Rating"
 msgstr ""
 
@@ -940,6 +1045,15 @@ msgstr ""
 msgid "Go to A_lbum"
 msgstr ""
 
+#: src/widgets/milkdrop.rs:80
+msgid "Music visualizer"
+msgstr ""
+
+#: src/widgets/milkdrop_view.rs:147
+#, rust-format
+msgid "Visualization: {}"
+msgstr ""
+
 #: src/widgets/navigate.rs:37
 msgid "This album isn't available"
 msgstr ""
@@ -948,24 +1062,24 @@ msgstr ""
 msgid "This artist isn't available"
 msgstr ""
 
-#: src/widgets/now_playing.rs:575
+#: src/widgets/now_playing.rs:641
 msgid "Lyrics from LRCLIB"
 msgstr ""
 
-#: src/widgets/now_playing.rs:661
+#: src/widgets/now_playing.rs:727
 msgid "Leave Fullscreen"
 msgstr ""
 
-#: src/widgets/now_playing.rs:699
+#: src/widgets/now_playing.rs:765
 msgid "Rating"
 msgstr ""
 
-#: src/widgets/now_playing.rs:709
+#: src/widgets/now_playing.rs:775
 #, rust-format
 msgid "Rated {} of 5"
 msgstr ""
 
-#: src/widgets/now_playing.rs:758 src/widgets/player_bar.rs:252
+#: src/widgets/now_playing.rs:824 src/widgets/player_bar.rs:252
 #, rust-format
 msgid "{} of {}"
 msgstr ""

@@ -9,6 +9,7 @@ use crate::application::LioApplication;
 /// Settings nicks in the order of the combo rows' models.
 const QUALITIES: [&str; 4] = ["original", "opus-192", "opus-128", "mp3-320"];
 const REPLAYGAIN: [&str; 4] = ["off", "track", "album", "auto"];
+const NOW_PLAYING_VIEWS: [&str; 5] = ["cover", "waves", "cd", "cd-spectrum", "visualizer"];
 
 mod imp {
     use super::*;
@@ -22,6 +23,12 @@ mod imp {
         pub stream_metered_row: TemplateChild<adw::ComboRow>,
         #[template_child]
         pub replaygain_row: TemplateChild<adw::ComboRow>,
+        #[template_child]
+        pub now_playing_view_row: TemplateChild<adw::ComboRow>,
+        #[template_child]
+        pub fade_row: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub fade_duration_row: TemplateChild<adw::SpinRow>,
         #[template_child]
         pub close_to_background_row: TemplateChild<adw::SwitchRow>,
         #[template_child]
@@ -121,6 +128,22 @@ impl LioPreferences {
             &QUALITIES,
         );
         bind_combo(settings, "replaygain", &imp.replaygain_row, &REPLAYGAIN);
+        bind_combo(
+            settings,
+            "now-playing-view",
+            &imp.now_playing_view_row,
+            &NOW_PLAYING_VIEWS,
+        );
+        settings
+            .bind("fade-on-pause", &imp.fade_row.get(), "active")
+            .build();
+        settings
+            .bind("fade-duration", &imp.fade_duration_row.get(), "value")
+            .build();
+        settings
+            .bind("fade-on-pause", &imp.fade_duration_row.get(), "sensitive")
+            .get()
+            .build();
         settings
             .bind(
                 "close-to-background",

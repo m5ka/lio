@@ -56,6 +56,9 @@ install_data(
   rename: '@0@-symbolic.svg'.format(application_id),
 )
 
+# MilkDrop presets for the Visualizer view
+install_subdir('presets', install_dir: pkgdatadir, exclude_files: ['README.md'])
+
 # D-Bus service for GApplication activation
 service_conf = configuration_data()
 service_conf.set('app_id', application_id)

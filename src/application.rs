@@ -428,6 +428,8 @@ impl LioApplication {
 
         // Manual offline mode, bound to the `offline-mode` setting.
         self.add_action(&self.settings().create_action("offline-mode"));
+        // The Now Playing view (album art or waves), for its cog menu.
+        self.add_action(&self.settings().create_action("now-playing-view"));
 
         let refresh = gio::ActionEntry::builder("refresh-library")
             .activate(|app: &Self, _, _| {

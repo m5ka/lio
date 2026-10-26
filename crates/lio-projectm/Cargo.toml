@@ -1,0 +1,18 @@
+[package]
+name = "lio-projectm"
+description = "libprojectM bindings for Lio's MilkDrop visualizer (system library or bundled build)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+# Lets Lio's build script read how libprojectM was linked (DEP_PROJECTM_LINKAGE).
+links = "projectm"
+
+[lints]
+workspace = true
+
+[build-dependencies]
+cmake = "0.1"
+pkg-config = "0.3"

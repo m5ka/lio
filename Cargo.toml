@@ -5,6 +5,7 @@ members = [
     "crates/lio-store",
     "crates/lio-playback",
     "crates/lio-bench",
+    "crates/lio-projectm",
 ]
 resolver = "3"
 
@@ -20,6 +21,7 @@ repository = "https://github.com/m5ka/lio"
 lio-subsonic = { path = "crates/lio-subsonic" }
 lio-store = { path = "crates/lio-store" }
 lio-playback = { path = "crates/lio-playback" }
+lio-projectm = { path = "crates/lio-projectm" }
 
 gtk = { package = "gtk4", version = "0.11", features = ["gnome_49"] }
 adw = { package = "libadwaita", version = "0.9", features = ["v1_8"] }
@@ -54,6 +56,7 @@ md-5 = "0.10"
 sha2 = "0.10"
 hex = "0.4"
 rand = "0.9"
+libc = "0.2"
 uuid = { version = "1", features = ["v4"] }
 
 wiremock = "0.6"
@@ -99,6 +102,9 @@ gtk.workspace = true
 adw.workspace = true
 gst.workspace = true
 glycin.workspace = true
+lio-projectm.workspace = true
+libc.workspace = true
+rand.workspace = true
 image.workspace = true
 tokio.workspace = true
 url.workspace = true

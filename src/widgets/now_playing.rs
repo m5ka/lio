@@ -32,6 +32,18 @@ mod imp {
         #[template_child]
         pub cover_clamp: TemplateChild<adw::Clamp>,
         #[template_child]
+        pub cover_frame: TemplateChild<gtk::AspectFrame>,
+        #[template_child]
+        pub cover_bin: TemplateChild<adw::Bin>,
+        #[template_child]
+        pub view_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub cd: TemplateChild<crate::widgets::cd::LioCd>,
+        #[template_child]
+        pub cd_spectrum: TemplateChild<crate::widgets::cd::LioCd>,
+        #[template_child]
+        pub waves: TemplateChild<crate::widgets::waves::LioWaves>,
+        #[template_child]
         pub cover_stack: TemplateChild<gtk::Stack>,
         #[template_child]
         pub cover_picture: TemplateChild<gtk::Picture>,
@@ -106,6 +118,9 @@ mod imp {
         type ParentType = adw::Bin;
 
         fn class_init(klass: &mut Self::Class) {
+            crate::widgets::waves::LioWaves::ensure_type();
+            crate::widgets::cd::LioCd::ensure_type();
+            crate::widgets::milkdrop_view::LioMilkdropView::ensure_type();
             klass.bind_template();
             klass.install_action("now-playing.close", None, |screen, _, _| {
                 if let Some(win) = screen.window() {
@@ -268,6 +283,57 @@ impl LioNowPlaying {
             .settings()
             .bind("now-playing-lyrics", &imp.lyrics_button.get(), "active")
             .build();
+        // The setting's values are the stack's page names.
+        LioApplication::default()
+            .settings()
+            .bind(
+                "now-playing-view",
+                &imp.view_stack.get(),
+                "visible-child-name",
+            )
+            .get()
+            .build();
+        // The disc casts its own round shadow: drop the square card around it, and let
+        // the shadow spill past the square instead of being cut off.
+        let card = |s: &Self| {
+            let imp = s.imp();
+            let cd = imp
+                .view_stack
+                .visible_child_name()
+                .is_some_and(|name| name.starts_with("cd"));
+            let overflow = if cd {
+                gtk::Overflow::Visible
+            } else {
+                gtk::Overflow::Hidden
+            };
+            imp.cover_frame.set_overflow(overflow);
+            imp.cover_bin.set_overflow(overflow);
+            imp.view_stack.set_overflow(overflow);
+            for class in ["album-cover", "album-cover-large", "now-playing-cover"] {
+                if cd {
+                    imp.cover_bin.remove_css_class(class);
+                } else {
+                    imp.cover_bin.add_css_class(class);
+                }
+            }
+        };
+        card(self);
+        imp.view_stack
+            .connect_visible_child_name_notify(glib::clone!(
+                #[weak(rename_to = s)]
+                self,
+                move |_| card(&s)
+            ));
+        // The discs show the same album art as the cover view.
+        imp.cover_picture.connect_paintable_notify(glib::clone!(
+            #[weak(rename_to = s)]
+            self,
+            move |picture| {
+                let paintable = picture.paintable();
+                s.imp().cd.set_paintable(paintable.as_ref());
+                s.imp().cd_spectrum.set_paintable(paintable.as_ref());
+            }
+        ));
         for prop in ["active", "visible"] {
             imp.lyrics_button.connect_notify_local(
                 Some(prop),
@@ -770,6 +836,9 @@ impl LioNowPlaying {
         let Some((r, g, b)) = crate::widgets::tint::average_colour(texture) else {
             return;
         };
+        self.imp().waves.set_colour((r, g, b));
+        self.imp().cd.set_colour((r, g, b));
+        self.imp().cd_spectrum.set_colour((r, g, b));
         let css = format!(
             ".now-playing {{
                background-color: color-mix(in srgb, rgb({r},{g},{b}) 30%, var(--window-bg-color));

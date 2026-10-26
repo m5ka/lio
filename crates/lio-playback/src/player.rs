@@ -1,11 +1,13 @@
 //! `Player`: playbin3 wrapper with gapless track switching.
 
 use std::sync::{Arc, Mutex};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use gst::prelude::*;
 
+use crate::pcm::Pcm;
 use crate::replaygain::{ReplayGain, ReplayGainFilter};
+use crate::spectrum::{Spectrum, SpectrumFrame};
 
 /// Playback states.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -69,9 +71,31 @@ struct Shared {
     latency_start: Mutex<Option<Instant>>,
 }
 
+/// How often a fade updates the volume.
+const FADE_STEP: Duration = Duration::from_millis(10);
+
+/// Pause/resume fade. Its level scales the user's volume, so the volume the user set
+/// is never touched.
+struct Fade {
+    duration: Duration,
+    /// 0.0 (silent) to 1.0 (full), linear in time; applied cubed, so it sounds even.
+    level: f64,
+    /// The running ramp, if any.
+    timer: Option<gst::glib::Source>,
+    /// State to switch to when the running ramp ends (`Paused` for a fade-out).
+    then: Option<gst::State>,
+}
+
 pub struct Player {
     playbin: gst::Element,
     shared: Arc<Shared>,
+    /// The user's volume, linear.
+    volume: Arc<Mutex<f64>>,
+    fade: Arc<Mutex<Fade>>,
+    /// `None` if the `spectrum` element is missing.
+    spectrum: Option<Arc<Spectrum>>,
+    /// Raw samples for sample-based visualisers; `None` if elements are missing.
+    pcm: Option<Pcm>,
     replaygain: Option<ReplayGainFilter>,
     replaygain_mode: Mutex<ReplayGain>,
     _bus_watch: Mutex<Option<gst::bus::BusWatchGuard>>,
@@ -132,7 +156,36 @@ impl Player {
                 gst::PadProbeReturn::Ok
             });
         }
+        let spectrum = match Spectrum::new() {
+            Ok(spectrum) => Some(Arc::new(spectrum)),
+            Err(e) => {
+                tracing::warn!("spectrum element unavailable, no visualiser: {e}");
+                None
+            }
+        };
+        let pcm = match Pcm::new() {
+            Ok(pcm) => Some(pcm),
+            Err(e) => {
+                tracing::warn!("cannot copy audio for visualisers: {e}");
+                None
+            }
+        };
+        let sink = audio_sink_bin(&sink, spectrum.as_deref(), pcm.as_ref())?;
         playbin.set_property("audio-sink", &sink);
+        if let Some(spectrum) = spectrum.clone() {
+            // Taken off the bus on the streaming thread: up to 60 a second, not for the
+            // main loop.
+            playbin
+                .bus()
+                .expect("pipeline has a bus")
+                .set_sync_handler(move |_, msg| {
+                    if spectrum.handle_message(msg) {
+                        gst::BusSyncReply::Drop
+                    } else {
+                        gst::BusSyncReply::Pass
+                    }
+                });
+        }
 
         let replaygain = match ReplayGainFilter::new() {
             Ok(rg) => {
@@ -165,6 +218,15 @@ impl Player {
         Ok(Self {
             playbin,
             shared,
+            volume: Arc::new(Mutex::new(1.0)),
+            fade: Arc::new(Mutex::new(Fade {
+                duration: Duration::ZERO,
+                level: 1.0,
+                timer: None,
+                then: None,
+            })),
+            spectrum,
+            pcm,
             replaygain,
             replaygain_mode: Mutex::new(ReplayGain::Track),
             _bus_watch: Mutex::new(None),
@@ -211,6 +273,8 @@ impl Player {
 
     /// Starts playing `uri` from the beginning (or from `start_ms`), replacing the current stream.
     pub fn play_uri(&self, uri: &str, start_ms: Option<u64>, paused: bool) -> Result<(), Error> {
+        self.reset_fade();
+        self.clear_spectrum();
         self.playbin.set_state(gst::State::Ready)?;
         self.apply_replaygain_mode();
         self.playbin.set_property("uri", uri);
@@ -229,17 +293,112 @@ impl Player {
         Ok(())
     }
 
+    /// Resumes, fading in if a fade duration is set. Called during a fade-out, it
+    /// cancels the pause and fades back in from the current level.
     pub fn play(&self) {
+        if self.playbin.current_state() != gst::State::Playing {
+            // Start silent; the ramp below brings it up (at once without a fade).
+            self.fade.lock().unwrap().level = 0.0;
+            self.apply_volume();
+        }
         let _ = self.playbin.set_state(gst::State::Playing);
+        self.ramp(1.0, None);
     }
 
+    /// Pauses, fading out first if a fade duration is set.
     pub fn pause(&self) {
-        let _ = self.playbin.set_state(gst::State::Paused);
+        if self.playbin.current_state() == gst::State::Playing {
+            self.ramp(0.0, Some(gst::State::Paused));
+        } else {
+            self.reset_fade();
+            let _ = self.playbin.set_state(gst::State::Paused);
+        }
     }
 
     pub fn stop(&self) {
         self.set_next_uri(None);
+        self.reset_fade();
+        self.clear_spectrum();
         let _ = self.playbin.set_state(gst::State::Null);
+    }
+
+    /// How long [`pause`](Self::pause) fades out and [`play`](Self::play) fades in;
+    /// zero pauses and resumes at once.
+    pub fn set_fade_duration(&self, duration: Duration) {
+        self.fade.lock().unwrap().duration = duration;
+    }
+
+    /// Whether a fade-out is running (the pipeline keeps playing until it ends).
+    pub fn is_fading_out(&self) -> bool {
+        let fade = self.fade.lock().unwrap();
+        fade.timer.is_some() && fade.then == Some(gst::State::Paused)
+    }
+
+    /// Stops any fade and returns to full volume.
+    fn reset_fade(&self) {
+        let mut fade = self.fade.lock().unwrap();
+        if let Some(timer) = fade.timer.take() {
+            timer.destroy();
+        }
+        fade.level = 1.0;
+        fade.then = None;
+        drop(fade);
+        self.apply_volume();
+    }
+
+    /// Moves the fade level to `to` over the fade duration (scaled by the distance
+    /// left), then switches the pipeline to `then`, if given.
+    fn ramp(&self, to: f64, then: Option<gst::State>) {
+        let mut fade = self.fade.lock().unwrap();
+        if let Some(timer) = fade.timer.take() {
+            timer.destroy();
+        }
+        fade.then = None;
+        let from = fade.level;
+        let total = fade.duration.mul_f64((to - from).abs());
+        if total < FADE_STEP {
+            fade.level = to;
+            drop(fade);
+            self.apply_volume();
+            if let Some(state) = then {
+                let _ = self.playbin.set_state(state);
+            }
+            return;
+        }
+        fade.then = then;
+        let start = Instant::now();
+        let (playbin, volume, shared_fade) =
+            (self.playbin.clone(), self.volume.clone(), self.fade.clone());
+        // On the thread-default context, like the bus watch in `connect_events`.
+        let source = gst::glib::timeout_source_new(
+            FADE_STEP,
+            Some("lio-fade"),
+            gst::glib::Priority::DEFAULT,
+            move || {
+                let progress = (start.elapsed().as_secs_f64() / total.as_secs_f64()).min(1.0);
+                let mut fade = shared_fade.lock().unwrap();
+                fade.level = from + (to - from) * progress;
+                set_playbin_volume(&playbin, *volume.lock().unwrap(), fade.level);
+                if progress < 1.0 {
+                    return gst::glib::ControlFlow::Continue;
+                }
+                // The source ends by returning Break.
+                fade.timer = None;
+                let then = fade.then.take();
+                drop(fade);
+                if let Some(state) = then {
+                    let _ = playbin.set_state(state);
+                }
+                gst::glib::ControlFlow::Break
+            },
+        );
+        source.attach(Some(&gst::glib::MainContext::ref_thread_default()));
+        fade.timer = Some(source);
+    }
+
+    fn apply_volume(&self) {
+        let level = self.fade.lock().unwrap().level;
+        set_playbin_volume(&self.playbin, *self.volume.lock().unwrap(), level);
     }
 
     pub fn is_playing(&self) -> bool {
@@ -267,9 +426,48 @@ impl Player {
         // read every frame from its last indexed position up to the target, which on a
         // track that is still streaming means waiting for the download to get there.
         // Audio frames are short, so a plain seek lands within a few tens of ms anyway.
+        self.clear_spectrum();
         self.playbin
             .seek_simple(gst::SeekFlags::FLUSH, gst::ClockTime::from_mseconds(ms))
             .is_ok()
+    }
+
+    /// Turns spectrum analysis on or off (off by default; it costs an FFT per frame).
+    pub fn set_spectrum_enabled(&self, enabled: bool) {
+        if let Some(spectrum) = &self.spectrum {
+            spectrum.set_enabled(enabled);
+        }
+    }
+
+    /// The spectrum of the audio being heard now, once analysis is on and has caught up.
+    pub fn spectrum(&self) -> Option<SpectrumFrame> {
+        self.spectrum
+            .as_ref()?
+            .current(self.playbin.current_running_time())
+    }
+
+    /// Turns copying samples for [`pcm`](Self::pcm) on or off (off by default).
+    pub fn set_pcm_enabled(&self, enabled: bool) {
+        if let Some(pcm) = &self.pcm {
+            pcm.set_enabled(enabled);
+        }
+    }
+
+    /// Interleaved stereo float samples heard since the last call, while copying is on.
+    pub fn pcm(&self) -> Vec<f32> {
+        self.pcm.as_ref().map_or_else(Vec::new, |pcm| {
+            pcm.take(self.playbin.current_running_time())
+        })
+    }
+
+    /// Forgets queued analysis (spectrum and samples): seek, new track, stop.
+    fn clear_spectrum(&self) {
+        if let Some(spectrum) = &self.spectrum {
+            spectrum.clear();
+        }
+        if let Some(pcm) = &self.pcm {
+            pcm.clear();
+        }
     }
 
     pub fn is_seekable(&self) -> bool {
@@ -284,11 +482,13 @@ impl Player {
             gst_audio::StreamVolumeFormat::Linear,
             cubic.clamp(0.0, 1.0),
         );
-        self.playbin.set_property("volume", linear);
+        *self.volume.lock().unwrap() = linear;
+        self.apply_volume();
     }
 
+    /// The user's volume (cubic), regardless of any fade in progress.
     pub fn volume(&self) -> f64 {
-        let linear: f64 = self.playbin.property("volume");
+        let linear = *self.volume.lock().unwrap();
         gst_audio::StreamVolume::convert_volume(
             gst_audio::StreamVolumeFormat::Linear,
             gst_audio::StreamVolumeFormat::Cubic,
@@ -326,6 +526,53 @@ impl Player {
             _ => {}
         }
     }
+}
+
+/// The audio sink with the analysis branches in front of it:
+/// `tee ! queue ! [spectrum !] sink`, plus `tee ! <pcm branch>`.
+fn audio_sink_bin(
+    sink: &gst::Element,
+    spectrum: Option<&Spectrum>,
+    pcm: Option<&Pcm>,
+) -> Result<gst::Element, Error> {
+    if spectrum.is_none() && pcm.is_none() {
+        return Ok(sink.clone());
+    }
+    let bin = gst::Bin::with_name("lio-audio-sink");
+    let mut main: Vec<&gst::Element> = spectrum.map(Spectrum::element).into_iter().collect();
+    main.push(sink);
+    let entry = match pcm {
+        Some(pcm) => {
+            let tee = gst::ElementFactory::make("tee").build()?;
+            // Short, so the analysis branches see audio only just before it is heard.
+            let queue = gst::ElementFactory::make("queue")
+                .property("max-size-time", 100_000_000u64)
+                .property("max-size-buffers", 0u32)
+                .property("max-size-bytes", 0u32)
+                .build()?;
+            bin.add_many([&tee, &queue])?;
+            bin.add_many(main.iter().copied())?;
+            bin.add_many(pcm.elements())?;
+            gst::Element::link_many([&tee, &queue].into_iter().chain(main.iter().copied()))?;
+            gst::Element::link_many(std::iter::once(&tee).chain(pcm.elements()))?;
+            tee
+        }
+        None => {
+            bin.add_many(main.iter().copied())?;
+            gst::Element::link_many(main.iter().copied())?;
+            main[0].clone()
+        }
+    };
+    let pad = entry.static_pad("sink").expect("sink pad");
+    bin.add_pad(&gst::GhostPad::with_target(&pad)?)?;
+    Ok(bin.upcast())
+}
+
+/// Sets playbin's volume to the user's (linear) volume scaled by the fade level.
+/// With PulseAudio/PipeWire sinks this is applied by the sound server, so a fade is
+/// heard right away rather than after the sink's buffer.
+fn set_playbin_volume(playbin: &gst::Element, volume: f64, level: f64) {
+    playbin.set_property("volume", volume * level.powi(3));
 }
 
 impl Drop for Player {

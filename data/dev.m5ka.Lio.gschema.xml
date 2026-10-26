@@ -12,6 +12,13 @@
     <value nick="album" value="2"/>
     <value nick="auto" value="3"/>
   </enum>
+  <enum id="dev.m5ka.Lio.NowPlayingView">
+    <value nick="cover" value="0"/>
+    <value nick="waves" value="1"/>
+    <value nick="cd" value="2"/>
+    <value nick="cd-spectrum" value="3"/>
+    <value nick="visualizer" value="4"/>
+  </enum>
   <enum id="dev.m5ka.Lio.AlbumsSort">
     <value nick="recently-added" value="0"/>
     <value nick="name" value="1"/>
@@ -95,6 +102,17 @@
       <default>false</default>
       <summary>Show a notification when the track changes</summary>
     </key>
+    <key name="fade-on-pause" type="b">
+      <default>true</default>
+      <summary>Fade when pausing</summary>
+      <description>Fade out when pausing and back in when resuming, instead of cutting the sound.</description>
+    </key>
+    <key name="fade-duration" type="d">
+      <range min="0.05" max="2.0"/>
+      <default>0.2</default>
+      <summary>Pause fade duration</summary>
+      <description>How long the pause and resume fades take, in seconds.</description>
+    </key>
     <key name="close-to-background" type="b">
       <default>true</default>
       <summary>Keep playing when the window is closed</summary>
@@ -117,6 +135,21 @@
     <key name="online-lyrics" type="b">
       <default>true</default>
       <summary>Look up timed lyrics on lrclib.net when the server has none</summary>
+    </key>
+    <key name="now-playing-view" enum="dev.m5ka.Lio.NowPlayingView">
+      <default>'cover'</default>
+      <summary>What fills the album art space on the Now Playing screen</summary>
+      <description>The album art; waves: a line rippling with the music on a block of the album art's colour; CD: the album art as a disc that turns while music plays; CD + Spectrum: the disc surrounded by a glowing spectrum; or Visualizer: MilkDrop visuals from projectM.</description>
+    </key>
+    <key name="visualizer-cycle" type="b">
+      <default>true</default>
+      <summary>Change the visualization automatically</summary>
+      <description>In the Visualizer view, move on to another visualization every half minute of playback.</description>
+    </key>
+    <key name="visualizer-preset" type="s">
+      <default>''</default>
+      <summary>Last visualization shown</summary>
+      <description>File name of the MilkDrop preset last shown in the Visualizer view; shown again first when not changing automatically.</description>
     </key>
     <key name="now-playing-lyrics" type="b">
       <default>false</default>

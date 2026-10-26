@@ -9,7 +9,6 @@ template $LioNowPlaying: Adw.Bin {
   child: Adw.BreakpointBin {
     width-request: 360;
     height-request: 294;
-
     // Narrow windows: cover above the details instead of beside them.
     Adw.Breakpoint narrow_breakpoint {
       condition ("max-width: 720sp")
@@ -42,6 +41,17 @@ template $LioNowPlaying: Adw.Bin {
         }
 
         [end]
+        Gtk.MenuButton view_button {
+          icon-name: "emblem-system-symbolic";
+          tooltip-text: _("View");
+          menu-model: view_menu;
+
+          accessibility {
+            label: _("View");
+          }
+        }
+
+        [end]
         Gtk.MenuButton rating_button {
           icon-name: "view-more-symbolic";
           tooltip-text: _("More");
@@ -52,6 +62,7 @@ template $LioNowPlaying: Adw.Bin {
         }
 
         // Becomes "Leave Fullscreen" while the window is fullscreen.
+
         [end]
         Gtk.Button fullscreen_button {
           icon-name: "view-fullscreen-symbolic";
@@ -105,7 +116,6 @@ template $LioNowPlaying: Adw.Bin {
           margin-end: 56;
           margin-top: 8;
           margin-bottom: 48;
-
           // Square, as large as the space allows, up to the clamp.
           Adw.Clamp cover_clamp {
             maximum-size: 640;
@@ -128,30 +138,65 @@ template $LioNowPlaying: Adw.Bin {
                   "now-playing-cover",
                 ]
 
-                child: Gtk.Stack cover_stack {
-                  Gtk.StackPage {
-                    name: "placeholder";
-
-                    child: Gtk.Image {
-                      icon-name: "audio-x-generic-symbolic";
-                      pixel-size: 128;
-
-                      styles [
-                        "dim-label",
-                      ]
-                    };
-                  }
+                // The album art, or a view in its place (`now-playing-view`).
+                child: Gtk.Stack view_stack {
+                  transition-type: crossfade;
 
                   Gtk.StackPage {
                     name: "cover";
 
-                    child: Gtk.Picture cover_picture {
-                      content-fit: cover;
+                    child: Gtk.Stack cover_stack {
+                      Gtk.StackPage {
+                        name: "placeholder";
 
-                      accessibility {
-                        label: _("Album cover");
+                        child: Gtk.Image {
+                          icon-name: "audio-x-generic-symbolic";
+                          pixel-size: 128;
+
+                          styles [
+                            "dim-label",
+                          ]
+                        };
+                      }
+
+                      Gtk.StackPage {
+                        name: "cover";
+
+                        child: Gtk.Picture cover_picture {
+                          content-fit: cover;
+
+                          accessibility {
+                            label: _("Album cover");
+                          }
+                        };
                       }
                     };
+                  }
+
+                  Gtk.StackPage {
+                    name: "waves";
+
+                    child: $LioWaves waves {};
+                  }
+
+                  Gtk.StackPage {
+                    name: "cd";
+
+                    child: $LioCd cd {};
+                  }
+
+                  Gtk.StackPage {
+                    name: "cd-spectrum";
+
+                    child: $LioCd cd_spectrum {
+                      spectrum: true;
+                    };
+                  }
+
+                  Gtk.StackPage {
+                    name: "visualizer";
+
+                    child: $LioMilkdropView milkdrop_view {};
                   }
                 };
               };
@@ -374,7 +419,6 @@ template $LioNowPlaying: Adw.Bin {
 
               end-widget: Gtk.Box {
                 spacing: 6;
-
                 // Hidden when the track has no lyrics.
                 Gtk.ToggleButton lyrics_button {
                   icon-name: "audio-input-microphone-symbolic";
@@ -410,4 +454,38 @@ template $LioNowPlaying: Adw.Bin {
       };
     };
   };
+}
+
+menu view_menu {
+  section {
+    item {
+      label: _("Album Art");
+      action: "app.now-playing-view";
+      target: "cover";
+    }
+
+    item {
+      label: _("Waves");
+      action: "app.now-playing-view";
+      target: "waves";
+    }
+
+    item {
+      label: _("CD");
+      action: "app.now-playing-view";
+      target: "cd";
+    }
+
+    item {
+      label: _("CD + Spectrum");
+      action: "app.now-playing-view";
+      target: "cd-spectrum";
+    }
+
+    item {
+      label: _("Visualizer");
+      action: "app.now-playing-view";
+      target: "visualizer";
+    }
+  }
 }

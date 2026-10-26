@@ -39,6 +39,42 @@ template $LioPreferences: Adw.PreferencesDialog {
           ]
         };
       }
+
+      Adw.SwitchRow fade_row {
+        title: _("Fade When Pausing");
+        subtitle: _("Fade out when pausing and back in when resuming");
+      }
+
+      Adw.SpinRow fade_duration_row {
+        title: _("Fade Duration");
+        subtitle: _("In seconds");
+        digits: 2;
+
+        adjustment: Gtk.Adjustment {
+          lower: 0.05;
+          upper: 2.0;
+          step-increment: 0.05;
+          page-increment: 0.25;
+        };
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("Now Playing");
+
+      Adw.ComboRow now_playing_view_row {
+        title: _("Album Art Space");
+
+        model: Gtk.StringList {
+          strings [
+            _("Album Art"),
+            _("Waves"),
+            _("CD"),
+            _("CD + Spectrum"),
+            _("Visualizer"),
+          ]
+        };
+      }
     }
 
     Adw.PreferencesGroup {
@@ -71,7 +107,9 @@ template $LioPreferences: Adw.PreferencesDialog {
 
       Adw.SwitchRow online_lyrics_row {
         title: _("Find Lyrics Online");
-        subtitle: _("When the server has no timed lyrics, look them up on lrclib.net. This sends the song's title, artist and album there");
+        subtitle: _(
+          "When the server has no timed lyrics, look them up on lrclib.net. This sends the song's title, artist and album there"
+        );
       }
     }
   }

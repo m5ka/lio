@@ -145,6 +145,15 @@ impl Settings {
         self.boolean("notifications")
     }
 
+    /// How long pausing fades out and resuming fades in; zero when fading is off.
+    pub fn pause_fade(&self) -> std::time::Duration {
+        if self.boolean("fade-on-pause") {
+            std::time::Duration::from_secs_f64(self.double("fade-duration"))
+        } else {
+            std::time::Duration::ZERO
+        }
+    }
+
     pub fn close_to_background(&self) -> bool {
         self.boolean("close-to-background")
     }

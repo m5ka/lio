@@ -2287,11 +2287,14 @@ dependencies = [
  "image",
  "ksni",
  "libadwaita",
+ "libc",
  "lio-playback",
+ "lio-projectm",
  "lio-store",
  "lio-subsonic",
  "mpris-server",
  "oo7",
+ "rand 0.9.5",
  "rusqlite",
  "serde_json",
  "tempfile",
@@ -2326,6 +2329,14 @@ dependencies = [
  "thiserror",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "lio-projectm"
+version = "0.1.0"
+dependencies = [
+ "cmake",
+ "pkg-config",
 ]
 
 [[package]]

@@ -34,10 +34,13 @@ Lio is meant to be distributed through Flathub (not published yet).
 ## Build from source
 
 Requirements: Rust ≥ 1.93, GTK ≥ 4.20, libadwaita ≥ 1.8, GStreamer ≥ 1.24 with the base
-and good plugins, SQLite with FTS5, glycin loaders, and `blueprint-compiler`.
+and good plugins, SQLite with FTS5, glycin loaders, OpenGL ES 3, and `blueprint-compiler`.
+The Visualizer view uses libprojectM ≥ 4.1: the system's if pkg-config finds `projectM-4`,
+otherwise the bundled copy, which needs CMake and a C++ compiler (see
+[`third_party/`](third_party/README.md)).
 
 ```sh
-git clone https://github.com/m5ka/lio.git && cd lio
+git clone --recursive https://github.com/m5ka/lio.git && cd lio
 
 # Development run (resources and settings schema are built by build.rs)
 cargo run

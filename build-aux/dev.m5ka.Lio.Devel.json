@@ -54,6 +54,29 @@
       ]
     },
     {
+      "name": "libprojectM",
+      "buildsystem": "cmake-ninja",
+      "config-opts": [
+        "-DENABLE_GLES=ON",
+        "-DENABLE_PLAYLIST=OFF",
+        "-DENABLE_SYSTEM_GLM=OFF",
+        "-DENABLE_SYSTEM_PROJECTM_EVAL=OFF",
+        "-DCMAKE_DISABLE_FIND_PACKAGE_BISON=ON",
+        "-DCMAKE_DISABLE_FIND_PACKAGE_FLEX=ON"
+      ],
+      "cleanup": [
+        "/lib/cmake"
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/projectM-visualizer/projectm.git",
+          "tag": "v4.1.8",
+          "commit": "4967dc003e5206d7df3ff447287f7609c47d2343"
+        }
+      ]
+    },
+    {
       "name": "lio",
       "buildsystem": "meson",
       "run-tests": true,
