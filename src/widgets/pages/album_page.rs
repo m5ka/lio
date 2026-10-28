@@ -232,7 +232,6 @@ impl LioAlbumPage {
         crate::widgets::tint::Tint::from_cover(
             self,
             album.cover_art_id(),
-            SIZE_LARGE,
             glib::clone!(
                 #[weak(rename_to = page)]
                 self,
