@@ -9,46 +9,62 @@ template $LioHomePage: Adw.NavigationPage {
     [top]
     Adw.HeaderBar {}
 
-    content: Gtk.Stack stack {
-      transition-type: crossfade;
+    // Laid out by the page's own width (see LioHomePage::apply_layout): the side-by-side
+    // layout needs far more room than the window's narrow breakpoint allows for, and a
+    // page wider than its window would be clipped rather than reflowed.
+    content: Adw.BreakpointBin {
+      width-request: 300;
+      height-request: 200;
 
-      Gtk.StackPage {
-        name: "empty";
-
-        child: Adw.StatusPage empty_page {
-          icon-name: "go-home-symbolic";
-          title: _("Nothing Here Yet");
-          description: _("Albums you add and play will show up here");
-        };
+      Adw.Breakpoint stacked_breakpoint {
+        condition ("max-width: 960px")
       }
 
-      Gtk.StackPage {
-        name: "syncing";
+      Adw.Breakpoint fanless_breakpoint {
+        condition ("max-width: 640px")
+      }
 
-        child: Adw.StatusPage {
-          title: _("Loading Your Library");
-          description: _("This only takes a while the first time");
+      child: Gtk.Stack stack {
+        transition-type: crossfade;
 
-          paintable: Adw.SpinnerPaintable {
-            widget: stack;
+        Gtk.StackPage {
+          name: "empty";
+
+          child: Adw.StatusPage empty_page {
+            icon-name: "go-home-symbolic";
+            title: _("Nothing Here Yet");
+            description: _("Albums you add and play will show up here");
           };
-        };
-      }
+        }
 
-      Gtk.StackPage {
-        name: "content";
+        Gtk.StackPage {
+          name: "syncing";
 
-        child: Gtk.ScrolledWindow {
-          hscrollbar-policy: never;
+          child: Adw.StatusPage {
+            title: _("Loading Your Library");
+            description: _("This only takes a while the first time");
 
-          child: Gtk.Box sections_box {
-            orientation: vertical;
-            spacing: 24;
-            margin-top: 18;
-            margin-bottom: 24;
+            paintable: Adw.SpinnerPaintable {
+              widget: stack;
+            };
           };
-        };
-      }
+        }
+
+        Gtk.StackPage {
+          name: "content";
+
+          child: Gtk.ScrolledWindow {
+            hscrollbar-policy: never;
+
+            child: Gtk.Box sections_box {
+              orientation: vertical;
+              spacing: 24;
+              margin-top: 18;
+              margin-bottom: 24;
+            };
+          };
+        }
+      };
     };
   };
 }

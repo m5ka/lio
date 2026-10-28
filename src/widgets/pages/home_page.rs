@@ -41,6 +41,20 @@ mod imp {
         pub stack: TemplateChild<gtk::Stack>,
         #[template_child]
         pub sections_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub stacked_breakpoint: TemplateChild<adw::Breakpoint>,
+        #[template_child]
+        pub fanless_breakpoint: TemplateChild<adw::Breakpoint>,
+        /// The page is too narrow for side by side (`stacked`), or even for the Library
+        /// Mix's fanned covers (`fanless`); see [`super::LioHomePage::apply_layout`].
+        pub stacked: Cell<bool>,
+        pub fanless: Cell<bool>,
+        /// The widgets that change with those: the top row and the lists (stack), the
+        /// Just Added panel (fixed width only side by side) and the fanned covers.
+        pub top: RefCell<Option<gtk::Box>>,
+        pub lists: RefCell<Option<gtk::Box>>,
+        pub just_added: RefCell<Option<gtk::Widget>>,
+        pub fan: RefCell<Option<gtk::Fixed>>,
         pub handlers: RefCell<Vec<glib::SignalHandlerId>>,
         /// Bumped by each reload and Library Mix reshuffle, so a newer one cancels an
         /// older one still looking up its cover colours.
@@ -87,6 +101,32 @@ mod imp {
             self.handlers
                 .borrow_mut()
                 .push(library.connect_syncing_notify(reload));
+            for (breakpoint, fanless) in [
+                (&*self.stacked_breakpoint, false),
+                (&*self.fanless_breakpoint, true),
+            ] {
+                let set = move |page: &super::LioHomePage, on: bool| {
+                    let imp = page.imp();
+                    // Only one breakpoint applies at a time (the narrowest that
+                    // matches), so the fanless one implies stacked as well; leaving it
+                    // for the stacked range applies the stacked one straight after.
+                    if fanless {
+                        imp.fanless.set(on);
+                    }
+                    imp.stacked.set(on);
+                    page.apply_layout();
+                };
+                breakpoint.connect_apply(glib::clone!(
+                    #[weak]
+                    obj,
+                    move |_| set(&obj, true)
+                ));
+                breakpoint.connect_unapply(glib::clone!(
+                    #[weak]
+                    obj,
+                    move |_| set(&obj, false)
+                ));
+            }
             obj.reload();
         }
 
@@ -218,8 +258,8 @@ impl LioHomePage {
             .build();
         let mix_slot = slot();
         top.append(&mix_slot);
-        top.append(&self.just_added(latest, accents));
-        follow_narrow(&top);
+        let just_added = self.just_added(latest, accents);
+        top.append(&just_added);
         imp.sections_box.append(&top);
 
         let lists = gtk::Box::builder()
@@ -234,10 +274,12 @@ impl LioHomePage {
         if !added.is_empty() {
             lists.append(&added_section(added, accents));
         }
-        follow_narrow(&lists);
         if lists.first_child().is_some() {
             imp.sections_box.append(&lists);
         }
+        imp.top.replace(Some(top));
+        imp.lists.replace(Some(lists));
+        imp.just_added.replace(Some(just_added));
 
         let deeper_slot = slot();
         imp.sections_box.append(&deeper_slot);
@@ -245,8 +287,31 @@ impl LioHomePage {
         imp.deeper_slot.replace(Some(deeper_slot));
         self.fill_mix(mix, accents);
         self.fill_deeper(deeper, accents);
+        self.apply_layout();
         self.prepare_mix();
         imp.stack.set_visible_child_name("content");
+    }
+
+    /// Lays the page out for its width: side by side, stacked, or stacked without the
+    /// fanned covers, as the breakpoints say. Run when they change and after building.
+    fn apply_layout(&self) {
+        let imp = self.imp();
+        let orientation = if imp.stacked.get() {
+            gtk::Orientation::Vertical
+        } else {
+            gtk::Orientation::Horizontal
+        };
+        for boxed in [&imp.top, &imp.lists] {
+            if let Some(boxed) = boxed.borrow().as_ref() {
+                boxed.set_orientation(orientation);
+            }
+        }
+        if let Some(just_added) = imp.just_added.borrow().as_ref() {
+            just_added.set_width_request(if imp.stacked.get() { -1 } else { 300 });
+        }
+        if let Some(fan) = imp.fan.borrow().as_ref() {
+            fan.set_visible(!imp.fanless.get());
+        }
     }
 
     /// `limit` random albums. Library Mix and Dig Deeper each draw their own, so small
@@ -429,13 +494,9 @@ impl LioHomePage {
                 .translate(&graphene::Point::new(-half, -half));
             fan.set_child_transform(&cover, Some(&transform));
         }
-        if let Some(win) = LioApplication::default().window() {
-            win.bind_property("narrow", &fan, "visible")
-                .invert_boolean()
-                .sync_create()
-                .build();
-        }
+        fan.set_visible(!self.imp().fanless.get());
         panel.append(&fan);
+        self.imp().fan.replace(Some(fan));
 
         if let Some(front) = mix.first() {
             tint(&panel, front.cover_art_id.as_deref(), panel_css, accents);
@@ -448,7 +509,6 @@ impl LioHomePage {
         let panel = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
             .spacing(4)
-            .width_request(300)
             .css_classes(["card", "home-panel"])
             .build();
         tint(&panel, album.cover_art_id.as_deref(), panel_css, accents);
@@ -854,13 +914,16 @@ fn cover(cover_id: Option<&str>, size: i32, load: u32, class: &str) -> adw::Bin 
 }
 
 /// Holds a random section; a reshuffle crossfades the new one in (see [`swap`]).
+/// No `interpolate-size`: it starts from the old child's allocated width rather than its
+/// minimum, so for the length of the crossfade the page would claim more width than it
+/// needs, squeezing the (hidden) queue sidebar below its minimum and flooding the log
+/// with "Trying to measure GtkStack … but it needs at least" warnings.
 fn slot() -> gtk::Stack {
     gtk::Stack::builder()
         .transition_type(gtk::StackTransitionType::Crossfade)
         .transition_duration(500)
         .hhomogeneous(false)
         .vhomogeneous(false)
-        .interpolate_size(true)
         .hexpand(true)
         .build()
 }
@@ -940,22 +1003,6 @@ fn apply_tint(widget: &gtk::Widget, css: &str) {
     tint.set(css);
     let tint = std::cell::RefCell::new(Some(tint));
     widget.connect_destroy(move |_| drop(tint.take()));
-}
-
-/// Lays `boxed` out vertically while the window is narrow.
-fn follow_narrow(boxed: &gtk::Box) {
-    if let Some(win) = LioApplication::default().window() {
-        win.bind_property("narrow", boxed, "orientation")
-            .transform_to(|_, narrow: bool| {
-                Some(if narrow {
-                    gtk::Orientation::Vertical
-                } else {
-                    gtk::Orientation::Horizontal
-                })
-            })
-            .sync_create()
-            .build();
-    }
 }
 
 fn attach_menu(widget: &impl IsA<gtk::Widget>, album: &AlbumRow) {
