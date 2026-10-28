@@ -42,10 +42,13 @@ mod imp {
         #[template_child]
         pub sections_box: TemplateChild<gtk::Box>,
         pub handlers: RefCell<Vec<glib::SignalHandlerId>>,
-        /// Bumped by each reload and reshuffle, so a newer one cancels an older one
-        /// still looking up its cover colours.
+        /// Bumped by each reload and Library Mix reshuffle, so a newer one cancels an
+        /// older one still looking up its cover colours.
         pub generation: Cell<u64>,
-        pub shuffle: Cell<u64>,
+        pub mix_shuffle: Cell<u64>,
+        /// The next Library Mix, drawn ahead with its panel's colour already looked up,
+        /// so its reshuffle button can show it at once.
+        pub next_mix: RefCell<Option<Vec<AlbumRow>>>,
         /// Where the random sections go, so Reshuffle can replace just them.
         pub mix_slot: RefCell<Option<gtk::Stack>>,
         pub deeper_slot: RefCell<Option<gtk::Stack>>,
@@ -162,7 +165,10 @@ impl LioHomePage {
             imp.stack.set_visible_child_name(page);
             return;
         }
-        let (mix, deeper) = self.random_picks();
+        let (mix, deeper) = (
+            self.random_albums(MIX_SIZE),
+            self.random_albums(DEEPER_SIZE),
+        );
         if imp.stack.visible_child_name().as_deref() != Some("content") {
             self.build(data, mix, deeper, None);
             return;
@@ -237,61 +243,87 @@ impl LioHomePage {
         imp.sections_box.append(&deeper_slot);
         imp.mix_slot.replace(Some(mix_slot));
         imp.deeper_slot.replace(Some(deeper_slot));
-        self.fill_random(mix, deeper, accents);
+        self.fill_mix(mix, accents);
+        self.fill_deeper(deeper, accents);
+        self.prepare_mix();
         imp.stack.set_visible_child_name("content");
     }
 
-    /// Random picks for Library Mix and Dig Deeper, each drawn separately so small
+    /// `limit` random albums. Library Mix and Dig Deeper each draw their own, so small
     /// libraries fill both.
-    fn random_picks(&self) -> (Vec<AlbumRow>, Vec<AlbumRow>) {
+    fn random_albums(&self, limit: usize) -> Vec<AlbumRow> {
         let Some(account) = LioApplication::default().session().account() else {
-            return Default::default();
+            return Vec::new();
         };
         account
             .db
             .read(|c| {
-                let random = |limit| {
-                    queries::album_ids(c, AlbumSort::Random, &AlbumFilter::All, Some(limit))
-                        .and_then(|ids| queries::album_rows(c, &ids))
-                };
-                Ok((random(MIX_SIZE)?, random(DEEPER_SIZE)?))
+                let ids = queries::album_ids(c, AlbumSort::Random, &AlbumFilter::All, Some(limit))?;
+                queries::album_rows(c, &ids)
             })
             .unwrap_or_default()
     }
 
-    /// Draws new random picks, leaving the rest of the page as it is. The new sections
-    /// crossfade in once their covers' colours are known.
-    fn reshuffle(&self) {
+    /// Shows a new Library Mix, leaving the rest of the page as it is. The panel waits
+    /// for its colour (its button's accent can't fade); with the mix drawn ahead by
+    /// [`Self::prepare_mix`] that is already known, so it crossfades in at once.
+    fn reshuffle_mix(&self) {
         let imp = self.imp();
         let generation = imp.generation.get();
-        let shuffle = imp.shuffle.get() + 1;
-        imp.shuffle.set(shuffle);
-        let (mix, deeper) = self.random_picks();
-        let ids = mix
-            .first()
-            .into_iter()
-            .chain(&deeper)
-            .map(|a| a.cover_art_id.clone())
-            .collect::<Vec<_>>();
+        let shuffle = imp.mix_shuffle.get() + 1;
+        imp.mix_shuffle.set(shuffle);
+        let mix = imp
+            .next_mix
+            .take()
+            .unwrap_or_else(|| self.random_albums(MIX_SIZE));
+        let ids = vec![mix.first().and_then(|a| a.cover_art_id.clone())];
         glib::spawn_future_local(glib::clone!(
             #[weak(rename_to = page)]
             self,
             async move {
                 let accents = accents(ids).await;
                 let imp = page.imp();
-                if imp.generation.get() == generation && imp.shuffle.get() == shuffle {
-                    page.fill_random(mix, deeper, Some(&accents));
+                if imp.generation.get() == generation && imp.mix_shuffle.get() == shuffle {
+                    page.fill_mix(mix, Some(&accents));
+                    page.prepare_mix();
                 }
             }
         ));
     }
 
-    fn fill_random(&self, mix: Vec<AlbumRow>, deeper: Vec<AlbumRow>, accents: Option<&Accents>) {
+    /// Draws the next Library Mix and looks up its panel's colour.
+    fn prepare_mix(&self) {
+        let mix = self.random_albums(MIX_SIZE);
+        let id = mix.first().and_then(|a| a.cover_art_id.clone());
+        let generation = self.imp().generation.get();
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to = page)]
+            self,
+            async move {
+                if let Some(id) = id {
+                    tint::cover_accent(&id).await;
+                }
+                if page.imp().generation.get() == generation {
+                    page.imp().next_mix.replace(Some(mix));
+                }
+            }
+        ));
+    }
+
+    /// Shows new Dig Deeper picks at once; the cards fade into their colours.
+    fn reshuffle_deeper(&self) {
+        self.fill_deeper(self.random_albums(DEEPER_SIZE), None);
+    }
+
+    fn fill_mix(&self, mix: Vec<AlbumRow>, accents: Option<&Accents>) {
         let imp = self.imp();
         if let Some(slot) = imp.mix_slot.borrow().as_ref() {
             swap(slot, Some(&self.mix_panel(mix, imp.count.get(), accents)));
         }
-        if let Some(slot) = imp.deeper_slot.borrow().as_ref() {
+    }
+
+    fn fill_deeper(&self, deeper: Vec<AlbumRow>, accents: Option<&Accents>) {
+        if let Some(slot) = self.imp().deeper_slot.borrow().as_ref() {
             let section = (!deeper.is_empty()).then(|| self.deeper_section(deeper, accents));
             swap(slot, section.as_ref());
         }
@@ -358,7 +390,7 @@ impl LioHomePage {
         reshuffle.connect_clicked(glib::clone!(
             #[weak(rename_to = page)]
             self,
-            move |_| page.reshuffle()
+            move |_| page.reshuffle_mix()
         ));
         let buttons = gtk::Box::builder()
             .spacing(10)
@@ -509,7 +541,7 @@ impl LioHomePage {
         reshuffle.connect_clicked(glib::clone!(
             #[weak(rename_to = page)]
             self,
-            move |_| page.reshuffle()
+            move |_| page.reshuffle_deeper()
         ));
         let header = header(
             &gettext("Dig Deeper"),
@@ -865,19 +897,16 @@ fn swap(slot: &gtk::Stack, child: Option<&gtk::Widget>) {
 /// colour instead of changing to it.
 type Accents = HashMap<String, Option<(u8, u8, u8)>>;
 
+/// Looks the covers up side by side; each may mean downloading the cover.
 async fn accents(ids: Vec<Option<String>>) -> Accents {
-    let mut accents = Accents::new();
-    for id in ids.into_iter().flatten() {
-        // Repeats are cheap: `cover_accent` remembers each cover.
-        let colour = tint::cover_accent(&id).await;
-        accents.insert(id, colour);
-    }
-    accents
+    let ids: Vec<String> = ids.into_iter().flatten().collect();
+    let colours = futures_util::future::join_all(ids.iter().map(|id| tint::cover_accent(id))).await;
+    ids.into_iter().zip(colours).collect()
 }
 
-/// Tints `widget` from the vivid colour of its cover: at once from `accents` when the
-/// page looked it up ahead, else once it loads (the CSS fades it in). Greyscale covers
-/// leave it untinted. The tint lasts as long as the widget, so one fading out keeps it.
+/// Tints `widget` from the vivid colour of its cover: at once when `accents` has it
+/// (looked up ahead), else once it loads (the CSS fades it in). Greyscale covers leave
+/// it untinted. The tint lasts as long as the widget, so one fading out keeps it.
 fn tint(
     widget: &impl IsA<gtk::Widget>,
     cover_id: Option<&str>,
@@ -888,8 +917,8 @@ fn tint(
         return;
     };
     let widget = widget.clone().upcast::<gtk::Widget>();
-    if let Some(accents) = accents {
-        if let Some(Some(colour)) = accents.get(&id) {
+    if let Some(known) = accents.and_then(|a| a.get(&id)) {
+        if let Some(colour) = known {
             apply_tint(&widget, &css(*colour));
         }
         return;
