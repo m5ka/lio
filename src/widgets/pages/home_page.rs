@@ -420,6 +420,7 @@ impl LioHomePage {
                 SIZE_GRID,
                 "album-cover",
             );
+            cover.add_css_class("home-fan-cover");
             fan.put(&cover, 0.0, 0.0);
             let half = FAN_COVER as f32 / 2.0;
             let transform = gsk::Transform::new()

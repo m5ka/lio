@@ -79,6 +79,13 @@ button.home-card,
   background-color: color-mix(in srgb, currentColor 15%, transparent);
 }
 
+/* The fanned Library Mix covers overlap, so a placeholder (album without art) is
+   solid: the card colour laid over the window background, not see-through. */
+.home-fan-cover {
+  background-color: var(--window-bg-color);
+  background-image: linear-gradient(var(--card-bg-color), var(--card-bg-color));
+}
+
 .home-cover-button {
   padding: 0;
   border-radius: 12px;
