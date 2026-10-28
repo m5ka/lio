@@ -56,6 +56,32 @@ playerbar {
   padding: 6px;
 }
 
+/* Home: panels and cards, tinted from their covers at runtime (see home_page.rs). */
+.home-panel {
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.home-badge {
+  padding: 2px 10px;
+  border-radius: 99px;
+  background-color: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.home-cover-button {
+  padding: 0;
+  border-radius: 12px;
+}
+
+button.home-card {
+  padding: 0;
+  border-radius: 14px;
+}
+
+button.home-card:hover {
+  filter: brightness(1.08);
+}
+
 .artist-link {
   padding: 2px 6px;
   margin-left: -6px;

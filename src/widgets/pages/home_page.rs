@@ -1,20 +1,34 @@
-//! Home page: Recently Added, Recently Played and Most Played album rows.
+//! Home page: a Library Mix panel and the latest addition (both tinted from their
+//! covers), Recently Played and Recently Added side by side, and a random Dig Deeper row.
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use gettextrs::gettext;
-use gtk::{CompositeTemplate, glib};
+use gettextrs::{gettext, ngettext};
+use gtk::{CompositeTemplate, glib, graphene, gsk};
+use lio_store::AlbumRow;
 use lio_store::queries::{self, AlbumFilter, AlbumSort};
 
 use crate::application::LioApplication;
-use crate::models::Album;
-use crate::widgets::{LioAlbumGrid, LioAlbumPage, LioAlbumTile, item_menu};
+use crate::covers::{SIZE_GRID, SIZE_ROW};
+use crate::models::{Album, format_duration};
+use crate::playback_controller::QueueOrigin;
+use crate::widgets::tint::{self, Tint};
+use crate::widgets::{LioAlbumGrid, LioAlbumPage, LioAlbumTile, cover_view, item_menu};
 
-/// Albums per row.
-const ROW_SIZE: usize = 20;
+/// Albums in Recently Played, and in Recently Added (after the one in Just Added).
+const LIST_SIZE: usize = 6;
+/// Albums queued by Play Mix; the first three are fanned out on the panel.
+const MIX_SIZE: usize = 10;
+/// Albums in Dig Deeper.
+const DEEPER_SIZE: usize = 10;
+/// Cover edges in pixels.
+const FAN_COVER: i32 = 150;
+const JUST_ADDED_COVER: i32 = 120;
+const GRID_COVER: i32 = 128;
+const CARD_COVER: i32 = 160;
 
 mod imp {
-    use std::cell::RefCell;
+    use std::cell::{Cell, RefCell};
 
     use super::*;
 
@@ -26,6 +40,15 @@ mod imp {
         #[template_child]
         pub sections_box: TemplateChild<gtk::Box>,
         pub handlers: RefCell<Vec<glib::SignalHandlerId>>,
+        /// Cover colours of the current panels and cards; dropped on reload.
+        pub tints: RefCell<Vec<Tint>>,
+        /// The same for the random sections; dropped on reshuffle.
+        pub random_tints: RefCell<Vec<Tint>>,
+        /// Where the random sections go, so Reshuffle can replace just them.
+        pub mix_slot: RefCell<Option<adw::Bin>>,
+        pub deeper_slot: RefCell<Option<adw::Bin>>,
+        /// Albums in the library, for the Library Mix description.
+        pub count: Cell<i64>,
     }
 
     #[glib::object_subclass]
@@ -80,11 +103,20 @@ glib::wrapper! {
         @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
+/// What the page shows, read from the library mirror in one go.
+#[derive(Default)]
+struct HomeData {
+    count: i64,
+    added: Vec<AlbumRow>,
+    played: Vec<AlbumRow>,
+}
+
 impl LioHomePage {
     pub fn new() -> Self {
         glib::Object::new()
     }
 
+    /// Rebuilds the page, drawing new random picks too.
     pub fn reload(&self) {
         let imp = self.imp();
         let app = LioApplication::default();
@@ -94,45 +126,445 @@ impl LioHomePage {
         while let Some(child) = imp.sections_box.first_child() {
             imp.sections_box.remove(&child);
         }
-        let sections = [
-            (
-                gettext("Recently Added"),
-                AlbumSort::RecentlyAdded,
-                AlbumFilter::All,
-            ),
-            (
-                gettext("Recently Played"),
-                AlbumSort::RecentlyPlayed,
-                AlbumFilter::RecentlyPlayed,
-            ),
-            (
-                gettext("Most Played"),
-                AlbumSort::MostPlayed,
-                AlbumFilter::RecentlyPlayed,
-            ),
-        ];
-        let mut any = false;
-        for (title, sort, filter) in sections {
-            let rows = account
-                .db
-                .read(|c| {
-                    let ids = queries::album_ids(c, sort, &filter, Some(ROW_SIZE))?;
-                    queries::album_rows(c, &ids)
+        imp.tints.borrow_mut().clear();
+        imp.random_tints.borrow_mut().clear();
+        imp.mix_slot.replace(None);
+        imp.deeper_slot.replace(None);
+        let data = account
+            .db
+            .read(|c| {
+                let rows = |sort, filter, limit| {
+                    queries::album_ids(c, sort, &filter, Some(limit))
+                        .and_then(|ids| queries::album_rows(c, &ids))
+                };
+                Ok(HomeData {
+                    count: c
+                        .query_row("SELECT COUNT(*) FROM album", [], |r| r.get(0))
+                        .unwrap_or(0),
+                    added: rows(AlbumSort::RecentlyAdded, AlbumFilter::All, LIST_SIZE + 1)?,
+                    played: rows(
+                        AlbumSort::RecentlyPlayed,
+                        AlbumFilter::RecentlyPlayed,
+                        LIST_SIZE,
+                    )?,
                 })
-                .unwrap_or_default();
-            if rows.is_empty() {
-                continue;
-            }
-            any = true;
-            imp.sections_box
-                .append(&section(&title, sort, filter, rows));
+            })
+            .unwrap_or_default();
+        if data.count == 0 || data.added.is_empty() {
+            let page = if app.library().syncing() {
+                "syncing"
+            } else {
+                "empty"
+            };
+            imp.stack.set_visible_child_name(page);
+            return;
         }
-        let page = match (any, app.library().syncing()) {
-            (true, _) => "content",
-            (false, true) => "syncing",
-            (false, false) => "empty",
+
+        let HomeData {
+            count,
+            mut added,
+            played,
+        } = data;
+        imp.count.set(count);
+        let latest = added.remove(0);
+
+        let top = gtk::Box::builder()
+            .spacing(16)
+            .margin_start(18)
+            .margin_end(18)
+            .build();
+        let mix_slot = adw::Bin::new();
+        top.append(&mix_slot);
+        top.append(&self.just_added(latest));
+        follow_narrow(&top);
+        imp.sections_box.append(&top);
+
+        let lists = gtk::Box::builder()
+            .spacing(24)
+            .homogeneous(true)
+            .margin_start(18)
+            .margin_end(18)
+            .build();
+        if !played.is_empty() {
+            lists.append(&played_section(played));
+        }
+        if !added.is_empty() {
+            lists.append(&added_section(added));
+        }
+        follow_narrow(&lists);
+        if lists.first_child().is_some() {
+            imp.sections_box.append(&lists);
+        }
+
+        let deeper_slot = adw::Bin::new();
+        imp.sections_box.append(&deeper_slot);
+        imp.mix_slot.replace(Some(mix_slot));
+        imp.deeper_slot.replace(Some(deeper_slot));
+        self.reshuffle();
+        imp.stack.set_visible_child_name("content");
+    }
+
+    /// Draws new random picks for Library Mix and Dig Deeper, leaving the rest as is.
+    /// Each is drawn separately, so small libraries fill both.
+    fn reshuffle(&self) {
+        let imp = self.imp();
+        let Some(account) = LioApplication::default().session().account() else {
+            return;
         };
-        imp.stack.set_visible_child_name(page);
+        let (mix, deeper) = account
+            .db
+            .read(|c| {
+                let random = |limit| {
+                    queries::album_ids(c, AlbumSort::Random, &AlbumFilter::All, Some(limit))
+                        .and_then(|ids| queries::album_rows(c, &ids))
+                };
+                Ok((random(MIX_SIZE)?, random(DEEPER_SIZE)?))
+            })
+            .unwrap_or_default();
+        imp.random_tints.borrow_mut().clear();
+        if let Some(slot) = imp.mix_slot.borrow().as_ref() {
+            slot.set_child(Some(&self.mix_panel(mix, imp.count.get())));
+        }
+        if let Some(slot) = imp.deeper_slot.borrow().as_ref() {
+            let section = (!deeper.is_empty()).then(|| self.deeper_section(deeper));
+            slot.set_child(section.as_ref());
+        }
+    }
+
+    /// The Library Mix panel: a few random covers fanned out, tinted by the front one.
+    fn mix_panel(&self, mix: Vec<AlbumRow>, count: i64) -> gtk::Widget {
+        let panel = gtk::Box::builder()
+            .spacing(24)
+            .hexpand(true)
+            .css_classes(["card", "home-panel"])
+            .build();
+
+        let text = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .spacing(6)
+            .hexpand(true)
+            .build();
+        text.append(&badge(&gettext("Library Mix")));
+        text.append(
+            &gtk::Label::builder()
+                .label(gettext("Shuffle Your Library"))
+                .xalign(0.0)
+                .wrap(true)
+                .css_classes(["title-1"])
+                .build(),
+        );
+        let mut description = ngettext(
+            "Whole albums, picked at random from {count} album.",
+            "Whole albums, picked at random from {count} albums.",
+            count.clamp(0, u32::MAX.into()) as u32,
+        )
+        .replace("{count}", &count.to_string());
+        if let Some(first) = mix.first() {
+            description.push(' ');
+            description.push_str(&gettext("Starts with {album}.").replace("{album}", &first.name));
+        }
+        text.append(
+            &gtk::Label::builder()
+                .label(description)
+                .xalign(0.0)
+                .wrap(true)
+                .css_classes(["dim-label"])
+                .build(),
+        );
+
+        let ids: Vec<String> = mix.iter().map(|a| a.id.clone()).collect();
+        let play = gtk::Button::builder()
+            .child(
+                &adw::ButtonContent::builder()
+                    .icon_name("media-playback-start-symbolic")
+                    .label(gettext("Play Mix"))
+                    .build(),
+            )
+            .css_classes(["pill", "suggested-action"])
+            .build();
+        play.connect_clicked(move |_| play_mix(ids.clone()));
+        let reshuffle = gtk::Button::builder()
+            .icon_name("view-refresh-symbolic")
+            .tooltip_text(gettext("Reshuffle"))
+            .valign(gtk::Align::Center)
+            .css_classes(["circular", "home-reshuffle"])
+            .build();
+        reshuffle.connect_clicked(glib::clone!(
+            #[weak(rename_to = page)]
+            self,
+            move |_| page.reshuffle()
+        ));
+        let buttons = gtk::Box::builder()
+            .spacing(10)
+            .margin_top(12)
+            .vexpand(true)
+            .valign(gtk::Align::End)
+            .build();
+        buttons.append(&play);
+        buttons.append(&reshuffle);
+        text.append(&buttons);
+        panel.append(&text);
+
+        // Back to front: right, left, then the album the mix starts with.
+        let fan = gtk::Fixed::builder()
+            .width_request(FAN_COVER * 2)
+            .height_request(FAN_COVER + 50)
+            .valign(gtk::Align::Center)
+            .build();
+        let spots = [(2, 50.0, 9.0), (1, -50.0, -8.0), (0, 0.0, 0.0)];
+        for (index, dx, angle) in spots {
+            let Some(album) = mix.get(index) else {
+                continue;
+            };
+            let cover = cover(
+                album.cover_art_id.as_deref(),
+                FAN_COVER,
+                SIZE_GRID,
+                "album-cover",
+            );
+            fan.put(&cover, 0.0, 0.0);
+            let half = FAN_COVER as f32 / 2.0;
+            let transform = gsk::Transform::new()
+                .translate(&graphene::Point::new(FAN_COVER as f32 + dx, half + 25.0))
+                .rotate(angle)
+                .translate(&graphene::Point::new(-half, -half));
+            fan.set_child_transform(&cover, Some(&transform));
+        }
+        if let Some(win) = LioApplication::default().window() {
+            win.bind_property("narrow", &fan, "visible")
+                .invert_boolean()
+                .sync_create()
+                .build();
+        }
+        panel.append(&fan);
+
+        if let Some(front) = mix.first() {
+            self.tint(&panel, front.cover_art_id.as_deref(), panel_css, true);
+        }
+        panel.upcast()
+    }
+
+    /// The most recently added album, tinted from its cover.
+    fn just_added(&self, album: AlbumRow) -> gtk::Widget {
+        let panel = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .spacing(4)
+            .width_request(300)
+            .css_classes(["card", "home-panel"])
+            .build();
+        self.tint(&panel, album.cover_art_id.as_deref(), panel_css, false);
+        let album = Album::new(album);
+
+        let open_button = gtk::Button::builder()
+            .child(&cover(
+                album.cover_art_id(),
+                JUST_ADDED_COVER,
+                SIZE_GRID,
+                "album-cover",
+            ))
+            .tooltip_text(gettext("Open Album"))
+            .css_classes(["flat", "home-cover-button"])
+            .build();
+        open_button.connect_clicked(glib::clone!(
+            #[strong]
+            album,
+            move |_| open(&album)
+        ));
+        let head = gtk::Box::builder().spacing(14).margin_bottom(8).build();
+        head.append(&open_button);
+        let added = badge(&gettext("Just Added"));
+        added.set_valign(gtk::Align::End);
+        head.append(&added);
+        panel.append(&head);
+
+        let row = album.row();
+        let mut meta = Vec::new();
+        if let Some(year) = row.year {
+            meta.push(year.to_string());
+        }
+        if row.song_count > 0 {
+            meta.push(
+                ngettext("{} track", "{} tracks", row.song_count as u32)
+                    .replace("{}", &row.song_count.to_string()),
+            );
+        }
+        if row.duration_s > 0 {
+            meta.push(format_duration(row.duration_s));
+        }
+        for (text, class) in [
+            (album.name().to_owned(), "title-3"),
+            (album.artist(), "heading"),
+            (meta.join(" · "), "caption"),
+        ] {
+            let label = gtk::Label::builder()
+                .label(text)
+                .xalign(0.0)
+                .ellipsize(gtk::pango::EllipsizeMode::End)
+                .css_classes([class])
+                .build();
+            if class == "caption" {
+                label.add_css_class("dim-label");
+            }
+            panel.append(&label);
+        }
+
+        let play = gtk::Button::builder()
+            .child(
+                &adw::ButtonContent::builder()
+                    .icon_name("media-playback-start-symbolic")
+                    .label(gettext("Play"))
+                    .build(),
+            )
+            .action_name("item.play")
+            .action_target(&("album", album.id()).to_variant())
+            .halign(gtk::Align::Start)
+            .vexpand(true)
+            .valign(gtk::Align::End)
+            .margin_top(12)
+            .css_classes(["pill", "suggested-action"])
+            .build();
+        panel.append(&play);
+        attach_menu(&panel, album.row());
+        panel.upcast()
+    }
+
+    /// Random albums as cards whose caption is tinted from the cover above it.
+    fn deeper_section(&self, albums: Vec<AlbumRow>) -> gtk::Widget {
+        let reshuffle = gtk::Button::builder()
+            .child(
+                &adw::ButtonContent::builder()
+                    .icon_name("view-refresh-symbolic")
+                    .label(gettext("Reshuffle"))
+                    .build(),
+            )
+            .valign(gtk::Align::Center)
+            .css_classes(["flat"])
+            .build();
+        reshuffle.connect_clicked(glib::clone!(
+            #[weak(rename_to = page)]
+            self,
+            move |_| page.reshuffle()
+        ));
+        let header = header(
+            &gettext("Dig Deeper"),
+            Some(&gettext("Random albums from your library")),
+            &reshuffle,
+        );
+        header.set_margin_start(18);
+        header.set_margin_end(18);
+
+        let row = gtk::Box::builder()
+            .spacing(14)
+            .margin_start(18)
+            .margin_end(18)
+            .margin_bottom(6)
+            .build();
+        for album in albums {
+            let album = Album::new(album);
+            let card = gtk::Button::builder()
+                .overflow(gtk::Overflow::Hidden)
+                .tooltip_text(album.name())
+                .css_classes(["card", "home-card"])
+                .build();
+            let content = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                .build();
+            content.append(&cover(
+                album.cover_art_id(),
+                CARD_COVER,
+                SIZE_GRID,
+                "home-card-cover",
+            ));
+            let caption = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                .margin_top(10)
+                .margin_bottom(12)
+                .margin_start(12)
+                .margin_end(12)
+                .build();
+            caption.append(
+                &gtk::Label::builder()
+                    .label(album.name())
+                    .xalign(0.0)
+                    .max_width_chars(1)
+                    .ellipsize(gtk::pango::EllipsizeMode::End)
+                    .css_classes(["heading"])
+                    .build(),
+            );
+            let mut byline = album.artist();
+            if let Some(year) = album.row().year {
+                byline = format!("{byline} · {year}");
+            }
+            caption.append(
+                &gtk::Label::builder()
+                    .label(byline)
+                    .xalign(0.0)
+                    .max_width_chars(1)
+                    .ellipsize(gtk::pango::EllipsizeMode::End)
+                    .css_classes(["caption", "dim-label"])
+                    .build(),
+            );
+            content.append(&caption);
+            card.set_child(Some(&content));
+            card.update_property(&[gtk::accessible::Property::Label(&format!(
+                "{}, {}",
+                album.name(),
+                album.artist()
+            ))]);
+            self.tint(&card, album.cover_art_id(), card_css, true);
+            attach_menu(&card, album.row());
+            card.connect_clicked(move |_| open(&album));
+            row.append(&card);
+        }
+        let scroller = gtk::ScrolledWindow::builder()
+            .vscrollbar_policy(gtk::PolicyType::Never)
+            .hscrollbar_policy(gtk::PolicyType::Automatic)
+            .child(&row)
+            .build();
+
+        let section = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .spacing(12)
+            .build();
+        section.append(&header);
+        section.append(&scroller);
+        section.upcast()
+    }
+
+    /// Tints `widget` from the vivid colour of its cover once that is known; greyscale
+    /// covers leave it untinted. `random` widgets lose theirs on reshuffle, the rest on reload.
+    fn tint(
+        &self,
+        widget: &impl IsA<gtk::Widget>,
+        cover_id: Option<&str>,
+        css: fn((u8, u8, u8)) -> String,
+        random: bool,
+    ) {
+        let Some(id) = cover_id.filter(|id| !id.is_empty()).map(str::to_owned) else {
+            return;
+        };
+        let widget = widget.clone().upcast::<gtk::Widget>();
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to = page)]
+            self,
+            #[weak]
+            widget,
+            async move {
+                if let Some(colour) = tint::cover_accent(&id).await
+                    && widget.parent().is_some()
+                {
+                    let tint = Tint::new(&widget);
+                    tint.set(&css(colour));
+                    let imp = page.imp();
+                    let tints = if random {
+                        &imp.random_tints
+                    } else {
+                        &imp.tints
+                    };
+                    tints.borrow_mut().push(tint);
+                }
+            }
+        ));
     }
 }
 
@@ -142,94 +574,277 @@ impl Default for LioHomePage {
     }
 }
 
-fn section(
-    title: &str,
-    sort: AlbumSort,
-    filter: AlbumFilter,
-    rows: Vec<lio_store::AlbumRow>,
-) -> gtk::Widget {
-    let header = gtk::Box::builder()
-        .spacing(12)
-        .margin_start(18)
-        .margin_end(18)
+fn played_section(albums: Vec<AlbumRow>) -> gtk::Widget {
+    let list = gtk::ListBox::builder()
+        .selection_mode(gtk::SelectionMode::None)
+        .valign(gtk::Align::Start)
+        .css_classes(["boxed-list"])
         .build();
-    let label = gtk::Label::builder()
-        .label(title)
-        .xalign(0.0)
-        .hexpand(true)
-        .css_classes(["title-3"])
-        .build();
-    let see_all = gtk::Button::builder()
-        .label(gettext("See All"))
-        .css_classes(["flat"])
-        .build();
-    let title_owned = title.to_owned();
-    see_all.connect_clicked(move |_| {
-        if let Some(win) = LioApplication::default().window() {
-            win.push_page(&LioAlbumGrid::new(&title_owned, filter.clone(), sort));
+    for album in albums {
+        let album = Album::new(album);
+        let row = adw::ActionRow::builder()
+            .title(album.name())
+            .subtitle(album.artist())
+            .use_markup(false)
+            .title_lines(1)
+            .subtitle_lines(1)
+            .activatable(true)
+            .build();
+        row.add_prefix(&cover(album.cover_art_id(), 40, SIZE_ROW, "cover-small"));
+        if let Some(when) = album.row().played_at.map(played_when) {
+            row.add_suffix(
+                &gtk::Label::builder()
+                    .label(when)
+                    .css_classes(["caption", "dim-label"])
+                    .build(),
+            );
         }
-    });
-    header.append(&label);
-    header.append(&see_all);
+        row.add_suffix(
+            &gtk::Button::builder()
+                .icon_name("media-playback-start-symbolic")
+                .tooltip_text(gettext("Play"))
+                .action_name("item.play")
+                .action_target(&("album", album.id()).to_variant())
+                .valign(gtk::Align::Center)
+                .css_classes(["flat", "circular", "play-icon"])
+                .build(),
+        );
+        attach_menu(&row, album.row());
+        row.connect_activated(move |_| open(&album));
+        list.append(&row);
+    }
+    let see_all = see_all(
+        &gettext("Recently Played"),
+        AlbumFilter::RecentlyPlayed,
+        AlbumSort::RecentlyPlayed,
+    );
+    titled(&header(&gettext("Recently Played"), None, &see_all), &list)
+}
 
-    let row = gtk::Box::builder()
-        .spacing(6)
-        .margin_start(12)
-        .margin_end(12)
+fn added_section(albums: Vec<AlbumRow>) -> gtk::Widget {
+    let grid = gtk::FlowBox::builder()
+        .selection_mode(gtk::SelectionMode::None)
+        .homogeneous(true)
+        .min_children_per_line(2)
+        .max_children_per_line(3)
+        .valign(gtk::Align::Start)
+        .css_classes(["album-grid"])
         .build();
-    for album in rows {
+    for album in albums {
         let tile = LioAlbumTile::new();
+        tile.set_cover_size(GRID_COVER);
         tile.bind(&Album::new(album));
-        let click = gtk::GestureClick::new();
-        click.connect_released(glib::clone!(
-            #[weak]
-            tile,
-            move |_, _, _, _| open(&tile)
-        ));
-        tile.add_controller(click);
-        tile.set_focusable(true);
-        let keys = gtk::EventControllerKey::new();
-        keys.connect_key_pressed(glib::clone!(
-            #[weak]
-            tile,
-            #[upgrade_or]
-            glib::Propagation::Proceed,
-            move |_, key, _, _| {
-                if matches!(
-                    key,
-                    gtk::gdk::Key::Return | gtk::gdk::Key::KP_Enter | gtk::gdk::Key::space
-                ) {
-                    open(&tile);
-                    return glib::Propagation::Stop;
-                }
-                glib::Propagation::Proceed
-            }
-        ));
-        tile.add_controller(keys);
         item_menu::attach(&tile, |tile: &LioAlbumTile| {
             tile.album()
                 .map(|a| item_menu::Target::Album(a.id().to_owned(), a.row().artist_id.clone()))
         });
-        tile.add_css_class("home-tile");
-        row.append(&tile);
+        grid.append(&tile);
     }
-    let scroller = gtk::ScrolledWindow::builder()
-        .vscrollbar_policy(gtk::PolicyType::Never)
-        .hscrollbar_policy(gtk::PolicyType::Automatic)
-        .child(&row)
-        .build();
+    grid.connect_child_activated(|_, child| {
+        if let Some(album) = child
+            .child()
+            .and_downcast::<LioAlbumTile>()
+            .and_then(|t| t.album())
+        {
+            open(&album);
+        }
+    });
+    let see_all = see_all(
+        &gettext("Recently Added"),
+        AlbumFilter::All,
+        AlbumSort::RecentlyAdded,
+    );
+    titled(&header(&gettext("Recently Added"), None, &see_all), &grid)
+}
 
+/// A section heading with an optional subtitle and a button at the end.
+fn header(title: &str, subtitle: Option<&str>, button: &gtk::Button) -> gtk::Box {
+    let titles = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .hexpand(true)
+        .build();
+    titles.append(
+        &gtk::Label::builder()
+            .label(title)
+            .xalign(0.0)
+            .css_classes(["title-2"])
+            .build(),
+    );
+    if let Some(subtitle) = subtitle {
+        titles.append(
+            &gtk::Label::builder()
+                .label(subtitle)
+                .xalign(0.0)
+                .css_classes(["dim-label"])
+                .build(),
+        );
+    }
+    let header = gtk::Box::builder().spacing(12).build();
+    header.append(&titles);
+    header.append(button);
+    header
+}
+
+fn titled(header: &gtk::Box, content: &impl IsA<gtk::Widget>) -> gtk::Widget {
     let section = gtk::Box::builder()
         .orientation(gtk::Orientation::Vertical)
-        .spacing(6)
+        .spacing(12)
         .build();
-    section.append(&header);
-    section.append(&scroller);
+    section.append(header);
+    section.append(content);
     section.upcast()
 }
 
-fn open(tile: &LioAlbumTile) {
-    if let (Some(album), Some(win)) = (tile.album(), LioApplication::default().window()) {
-        win.push_page(&LioAlbumPage::new(&album));
+fn see_all(title: &str, filter: AlbumFilter, sort: AlbumSort) -> gtk::Button {
+    let button = gtk::Button::builder()
+        .label(gettext("See All"))
+        .valign(gtk::Align::Center)
+        .css_classes(["flat"])
+        .build();
+    let title = title.to_owned();
+    button.connect_clicked(move |_| {
+        if let Some(win) = LioApplication::default().window() {
+            win.push_page(&LioAlbumGrid::new(&title, filter.clone(), sort));
+        }
+    });
+    button
+}
+
+fn badge(text: &str) -> gtk::Label {
+    gtk::Label::builder()
+        .label(text)
+        .halign(gtk::Align::Start)
+        .css_classes(["caption-heading", "home-badge"])
+        .build()
+}
+
+/// A cover of `size` pixels (loaded at `load`), with the disc placeholder until it arrives.
+fn cover(cover_id: Option<&str>, size: i32, load: u32, class: &str) -> adw::Bin {
+    let placeholder = gtk::Image::builder()
+        .icon_name("media-optical-cd-audio-symbolic")
+        .pixel_size((size / 2).max(16))
+        .css_classes(["dim-label"])
+        .build();
+    let image = gtk::Image::builder().pixel_size(size).build();
+    let stack = gtk::Stack::new();
+    stack.add_named(&placeholder, Some("placeholder"));
+    stack.add_named(&image, Some("cover"));
+    cover_view::show_cover(&stack, &image, cover_id, load, &Default::default());
+    adw::Bin::builder()
+        .child(&stack)
+        .width_request(size)
+        .height_request(size)
+        .halign(gtk::Align::Start)
+        .valign(gtk::Align::Center)
+        .overflow(gtk::Overflow::Hidden)
+        .css_classes([class])
+        .build()
+}
+
+/// Lays `boxed` out vertically while the window is narrow.
+fn follow_narrow(boxed: &gtk::Box) {
+    if let Some(win) = LioApplication::default().window() {
+        win.bind_property("narrow", boxed, "orientation")
+            .transform_to(|_, narrow: bool| {
+                Some(if narrow {
+                    gtk::Orientation::Vertical
+                } else {
+                    gtk::Orientation::Horizontal
+                })
+            })
+            .sync_create()
+            .build();
+    }
+}
+
+fn attach_menu(widget: &impl IsA<gtk::Widget>, album: &AlbumRow) {
+    let target = item_menu::Target::Album(album.id.clone(), album.artist_id.clone());
+    item_menu::attach(widget, move |_| Some(target.clone()));
+}
+
+/// A large panel: the cover's colour as the accent, over a gradient of darker shades of
+/// it that keeps white text legible.
+fn panel_css(colour: (u8, u8, u8)) -> String {
+    let (r, g, b) = colour;
+    format!(
+        "{}
+         background-image: linear-gradient(120deg,
+           oklab(from rgb({r},{g},{b}) max(min(l, 0.46), 0.34) a b),
+           oklab(from rgb({r},{g},{b}) max(min(l, 0.3), 0.22) a b));
+         color: white;",
+        tint::accent_declarations(colour)
+    )
+}
+
+/// A Dig Deeper card: one flat shade of the cover's colour.
+fn card_css((r, g, b): (u8, u8, u8)) -> String {
+    format!(
+        "background-image: linear-gradient(
+           oklab(from rgb({r},{g},{b}) max(min(l, 0.4), 0.3) a b),
+           oklab(from rgb({r},{g},{b}) max(min(l, 0.4), 0.3) a b));
+         color: white;"
+    )
+}
+
+/// "Today", "Yesterday", a weekday within the last week, else the date.
+fn played_when(at: i64) -> String {
+    let (Ok(then), Ok(now)) = (
+        glib::DateTime::from_unix_local(at),
+        glib::DateTime::now_local(),
+    ) else {
+        return String::new();
+    };
+    let midnight = now.to_unix()
+        - i64::from(now.hour()) * 3600
+        - i64::from(now.minute()) * 60
+        - i64::from(now.second());
+    if at >= midnight {
+        gettext("Today")
+    } else if at >= midnight - 86_400 {
+        gettext("Yesterday")
+    } else {
+        let format = if at >= midnight - 6 * 86_400 {
+            "%A"
+        } else {
+            "%e %b"
+        };
+        then.format(format)
+            .map(|s| s.trim().to_owned())
+            .unwrap_or_default()
+    }
+}
+
+/// Plays the mix's albums in order: the first straight away, the rest queued behind it
+/// as their tracks resolve. Albums with nothing playable (e.g. offline) are skipped.
+fn play_mix(ids: Vec<String>) {
+    glib::spawn_future_local(async move {
+        let app = LioApplication::default();
+        let mut started = false;
+        for id in ids {
+            match crate::actions::items::resolve_tracks("album", &id).await {
+                Ok(tracks) if tracks.is_empty() => {}
+                Ok(tracks) if started => app.playback().enqueue(tracks),
+                Ok(tracks) => {
+                    app.playback().play_tracks(tracks, 0, QueueOrigin::None);
+                    started = true;
+                }
+                Err(e) if !started => {
+                    if let Some(win) = app.window() {
+                        win.toast(&e);
+                    }
+                    return;
+                }
+                Err(_) => {}
+            }
+        }
+        if !started && let Some(win) = app.window() {
+            win.toast(&gettext("Nothing to play"));
+        }
+    });
+}
+
+fn open(album: &Album) {
+    if let Some(win) = LioApplication::default().window() {
+        win.push_page(&LioAlbumPage::new(album));
     }
 }

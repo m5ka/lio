@@ -75,6 +75,14 @@ impl LioAlbumTile {
         glib::Object::new()
     }
 
+    /// Shrinks or grows the cover from the default [`TILE_COVER`].
+    pub fn set_cover_size(&self, size: i32) {
+        let imp = self.imp();
+        imp.cover_bin.set_size_request(size, size);
+        imp.cover_picture.set_pixel_size(size);
+        self.set_width_request(size);
+    }
+
     pub fn album(&self) -> Option<Album> {
         self.imp().album.borrow().clone()
     }
