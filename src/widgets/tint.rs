@@ -1,4 +1,4 @@
-//! Colour washes taken from cover art (Now Playing, album pages).
+//! Colour washes taken from cover art (Now Playing, the player bar, album pages).
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -124,18 +124,48 @@ pub fn accent_declarations((r, g, b): (u8, u8, u8)) -> String {
 /// cover, so the player bar and Now Playing agree: small thumbnails lose too much
 /// saturation to downscaling to give the same result as the large cover.
 pub async fn cover_accent(id: &str) -> Option<(u8, u8, u8)> {
-    type Accents = HashMap<String, Option<(u8, u8, u8)>>;
     thread_local! {
-        static ACCENTS: RefCell<Accents> = RefCell::default();
+        static ACCENTS: RefCell<Colours> = RefCell::default();
     }
-    if let Some(colour) = ACCENTS.with_borrow(|a| a.get(id).copied()) {
+    cover_colour(&ACCENTS, id, accent_colour).await
+}
+
+/// Average colour of cover `id`, taken and remembered like [`cover_accent`].
+pub async fn cover_average(id: &str) -> Option<(u8, u8, u8)> {
+    thread_local! {
+        static AVERAGES: RefCell<Colours> = RefCell::default();
+    }
+    cover_colour(&AVERAGES, id, average_colour).await
+}
+
+type Colours = HashMap<String, Option<(u8, u8, u8)>>;
+
+async fn cover_colour(
+    cache: &'static std::thread::LocalKey<RefCell<Colours>>,
+    id: &str,
+    measure: fn(&gdk::Texture) -> Option<(u8, u8, u8)>,
+) -> Option<(u8, u8, u8)> {
+    if let Some(colour) = cache.with_borrow(|c| c.get(id).copied()) {
         return colour;
     }
     let covers = LioApplication::default().covers()?;
     let texture = covers.load(id, SIZE_LARGE, None).await?;
-    let colour = accent_colour(&texture);
-    ACCENTS.with_borrow_mut(|a| a.insert(id.to_owned(), colour));
+    let colour = measure(&texture);
+    cache.with_borrow_mut(|c| c.insert(id.to_owned(), colour));
     colour
+}
+
+/// CSS declarations for the Now Playing wash of `colour` (a cover's average colour):
+/// the colour mixed into the window background, a glow centred at `glow` (a CSS
+/// position, behind the cover) and a soft fade from the top. Shared with the player bar
+/// so the two match.
+pub fn wash_declarations((r, g, b): (u8, u8, u8), glow: &str) -> String {
+    format!(
+        "background-color: color-mix(in srgb, rgb({r},{g},{b}) 30%, var(--window-bg-color));
+         background-image:
+           radial-gradient(ellipse at {glow}, rgba({r},{g},{b},0.5), transparent 60%),
+           linear-gradient(to bottom, rgba({r},{g},{b},0.18), transparent 70%);"
+    )
 }
 
 /// The most prominent colour of a texture, or `None` for covers with (next to) no colour.

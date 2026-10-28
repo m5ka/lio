@@ -216,7 +216,7 @@ impl LioPlayerBar {
                     SIZE_ROW,
                     &imp.cancellable,
                 );
-                self.update_accent(track.id(), track.cover_art_id());
+                self.update_tint(track.id(), track.cover_art_id());
             }
             None => {
                 imp.title_label.set_label("");
@@ -228,15 +228,16 @@ impl LioPlayerBar {
                     SIZE_ROW,
                     &imp.cancellable,
                 );
-                self.set_accent(None);
+                self.set_tint(None, None);
             }
         }
     }
 
-    /// Accents the controls with the most vivid colour of `cover_id`, once it loads.
-    fn update_accent(&self, track_id: &str, cover_id: Option<&str>) {
+    /// Once `cover_id` loads: accents the controls with its most vivid colour and washes
+    /// the bar in its average colour, the same way as Now Playing.
+    fn update_tint(&self, track_id: &str, cover_id: Option<&str>) {
         let Some(id) = cover_id.filter(|id| !id.is_empty()).map(str::to_owned) else {
-            self.set_accent(None);
+            self.set_tint(None, None);
             return;
         };
         let track_id = track_id.to_owned();
@@ -245,6 +246,7 @@ impl LioPlayerBar {
             self,
             async move {
                 let accent = crate::widgets::tint::cover_accent(&id).await;
+                let average = crate::widgets::tint::cover_average(&id).await;
                 // Skip late results for a track that is no longer playing.
                 let current = bar
                     .imp()
@@ -254,23 +256,26 @@ impl LioPlayerBar {
                     .and_then(|c| c.current_track())
                     .is_some_and(|t| t.id() == track_id);
                 if current {
-                    bar.set_accent(accent);
+                    bar.set_tint(accent, average);
                 }
             }
         ));
     }
 
-    /// `None` falls back to the system accent.
-    fn set_accent(&self, colour: Option<(u8, u8, u8)>) {
+    /// `None` falls back to the system accent and the plain bar background. The wash's
+    /// glow sits behind the cover, at the bar's bottom left.
+    fn set_tint(&self, accent: Option<(u8, u8, u8)>, average: Option<(u8, u8, u8)>) {
+        let accent = accent
+            .map(crate::widgets::tint::accent_declarations)
+            .unwrap_or_default();
+        let wash = average
+            .map(|colour| crate::widgets::tint::wash_declarations(colour, "3% 70%"))
+            .unwrap_or_default();
         self.imp()
             .accent
             .borrow_mut()
             .get_or_insert_with(|| crate::widgets::tint::Tint::new(self))
-            .set(
-                &colour
-                    .map(crate::widgets::tint::accent_declarations)
-                    .unwrap_or_default(),
-            );
+            .set(&format!("{accent} {wash}"));
     }
 
     fn update_playing(&self, playing: bool) {

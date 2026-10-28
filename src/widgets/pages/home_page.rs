@@ -1,6 +1,8 @@
 //! Home page: a Library Mix panel and the latest addition (both tinted from their
 //! covers), Recently Played and Recently Added side by side, and a random Dig Deeper row.
 
+use std::collections::HashMap;
+
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use gettextrs::{gettext, ngettext};
@@ -40,13 +42,13 @@ mod imp {
         #[template_child]
         pub sections_box: TemplateChild<gtk::Box>,
         pub handlers: RefCell<Vec<glib::SignalHandlerId>>,
-        /// Cover colours of the current panels and cards; dropped on reload.
-        pub tints: RefCell<Vec<Tint>>,
-        /// The same for the random sections; dropped on reshuffle.
-        pub random_tints: RefCell<Vec<Tint>>,
+        /// Bumped by each reload and reshuffle, so a newer one cancels an older one
+        /// still looking up its cover colours.
+        pub generation: Cell<u64>,
+        pub shuffle: Cell<u64>,
         /// Where the random sections go, so Reshuffle can replace just them.
-        pub mix_slot: RefCell<Option<adw::Bin>>,
-        pub deeper_slot: RefCell<Option<adw::Bin>>,
+        pub mix_slot: RefCell<Option<gtk::Stack>>,
+        pub deeper_slot: RefCell<Option<gtk::Stack>>,
         /// Albums in the library, for the Library Mix description.
         pub count: Cell<i64>,
     }
@@ -116,20 +118,18 @@ impl LioHomePage {
         glib::Object::new()
     }
 
-    /// Rebuilds the page, drawing new random picks too.
+    /// Rebuilds the page, drawing new random picks too. While the page is showing, the
+    /// old content stays until the new covers' colours are known, so the new panels
+    /// start in their colours; the first time, it is built at once and the colours fade
+    /// in.
     pub fn reload(&self) {
         let imp = self.imp();
         let app = LioApplication::default();
         let Some(account) = app.session().account() else {
             return;
         };
-        while let Some(child) = imp.sections_box.first_child() {
-            imp.sections_box.remove(&child);
-        }
-        imp.tints.borrow_mut().clear();
-        imp.random_tints.borrow_mut().clear();
-        imp.mix_slot.replace(None);
-        imp.deeper_slot.replace(None);
+        let generation = imp.generation.get() + 1;
+        imp.generation.set(generation);
         let data = account
             .db
             .read(|c| {
@@ -151,6 +151,9 @@ impl LioHomePage {
             })
             .unwrap_or_default();
         if data.count == 0 || data.added.is_empty() {
+            while let Some(child) = imp.sections_box.first_child() {
+                imp.sections_box.remove(&child);
+            }
             let page = if app.library().syncing() {
                 "syncing"
             } else {
@@ -159,7 +162,40 @@ impl LioHomePage {
             imp.stack.set_visible_child_name(page);
             return;
         }
+        let (mix, deeper) = self.random_picks();
+        if imp.stack.visible_child_name().as_deref() != Some("content") {
+            self.build(data, mix, deeper, None);
+            return;
+        }
+        let ids = [&data.added[0]]
+            .into_iter()
+            .chain(mix.first())
+            .chain(&deeper)
+            .map(|a| a.cover_art_id.clone())
+            .collect::<Vec<_>>();
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to = page)]
+            self,
+            async move {
+                let accents = accents(ids).await;
+                if page.imp().generation.get() == generation {
+                    page.build(data, mix, deeper, Some(&accents));
+                }
+            }
+        ));
+    }
 
+    fn build(
+        &self,
+        data: HomeData,
+        mix: Vec<AlbumRow>,
+        deeper: Vec<AlbumRow>,
+        accents: Option<&Accents>,
+    ) {
+        let imp = self.imp();
+        while let Some(child) = imp.sections_box.first_child() {
+            imp.sections_box.remove(&child);
+        }
         let HomeData {
             count,
             mut added,
@@ -173,9 +209,9 @@ impl LioHomePage {
             .margin_start(18)
             .margin_end(18)
             .build();
-        let mix_slot = adw::Bin::new();
+        let mix_slot = slot();
         top.append(&mix_slot);
-        top.append(&self.just_added(latest));
+        top.append(&self.just_added(latest, accents));
         follow_narrow(&top);
         imp.sections_box.append(&top);
 
@@ -196,22 +232,21 @@ impl LioHomePage {
             imp.sections_box.append(&lists);
         }
 
-        let deeper_slot = adw::Bin::new();
+        let deeper_slot = slot();
         imp.sections_box.append(&deeper_slot);
         imp.mix_slot.replace(Some(mix_slot));
         imp.deeper_slot.replace(Some(deeper_slot));
-        self.reshuffle();
+        self.fill_random(mix, deeper, accents);
         imp.stack.set_visible_child_name("content");
     }
 
-    /// Draws new random picks for Library Mix and Dig Deeper, leaving the rest as is.
-    /// Each is drawn separately, so small libraries fill both.
-    fn reshuffle(&self) {
-        let imp = self.imp();
+    /// Random picks for Library Mix and Dig Deeper, each drawn separately so small
+    /// libraries fill both.
+    fn random_picks(&self) -> (Vec<AlbumRow>, Vec<AlbumRow>) {
         let Some(account) = LioApplication::default().session().account() else {
-            return;
+            return Default::default();
         };
-        let (mix, deeper) = account
+        account
             .db
             .read(|c| {
                 let random = |limit| {
@@ -220,19 +255,49 @@ impl LioHomePage {
                 };
                 Ok((random(MIX_SIZE)?, random(DEEPER_SIZE)?))
             })
-            .unwrap_or_default();
-        imp.random_tints.borrow_mut().clear();
+            .unwrap_or_default()
+    }
+
+    /// Draws new random picks, leaving the rest of the page as it is. The new sections
+    /// crossfade in once their covers' colours are known.
+    fn reshuffle(&self) {
+        let imp = self.imp();
+        let generation = imp.generation.get();
+        let shuffle = imp.shuffle.get() + 1;
+        imp.shuffle.set(shuffle);
+        let (mix, deeper) = self.random_picks();
+        let ids = mix
+            .first()
+            .into_iter()
+            .chain(&deeper)
+            .map(|a| a.cover_art_id.clone())
+            .collect::<Vec<_>>();
+        glib::spawn_future_local(glib::clone!(
+            #[weak(rename_to = page)]
+            self,
+            async move {
+                let accents = accents(ids).await;
+                let imp = page.imp();
+                if imp.generation.get() == generation && imp.shuffle.get() == shuffle {
+                    page.fill_random(mix, deeper, Some(&accents));
+                }
+            }
+        ));
+    }
+
+    fn fill_random(&self, mix: Vec<AlbumRow>, deeper: Vec<AlbumRow>, accents: Option<&Accents>) {
+        let imp = self.imp();
         if let Some(slot) = imp.mix_slot.borrow().as_ref() {
-            slot.set_child(Some(&self.mix_panel(mix, imp.count.get())));
+            swap(slot, Some(&self.mix_panel(mix, imp.count.get(), accents)));
         }
         if let Some(slot) = imp.deeper_slot.borrow().as_ref() {
-            let section = (!deeper.is_empty()).then(|| self.deeper_section(deeper));
-            slot.set_child(section.as_ref());
+            let section = (!deeper.is_empty()).then(|| self.deeper_section(deeper, accents));
+            swap(slot, section.as_ref());
         }
     }
 
     /// The Library Mix panel: a few random covers fanned out, tinted by the front one.
-    fn mix_panel(&self, mix: Vec<AlbumRow>, count: i64) -> gtk::Widget {
+    fn mix_panel(&self, mix: Vec<AlbumRow>, count: i64, accents: Option<&Accents>) -> gtk::Widget {
         let panel = gtk::Box::builder()
             .spacing(24)
             .hexpand(true)
@@ -339,20 +404,20 @@ impl LioHomePage {
         panel.append(&fan);
 
         if let Some(front) = mix.first() {
-            self.tint(&panel, front.cover_art_id.as_deref(), panel_css, true);
+            tint(&panel, front.cover_art_id.as_deref(), panel_css, accents);
         }
         panel.upcast()
     }
 
     /// The most recently added album, tinted from its cover.
-    fn just_added(&self, album: AlbumRow) -> gtk::Widget {
+    fn just_added(&self, album: AlbumRow, accents: Option<&Accents>) -> gtk::Widget {
         let panel = gtk::Box::builder()
             .orientation(gtk::Orientation::Vertical)
             .spacing(4)
             .width_request(300)
             .css_classes(["card", "home-panel"])
             .build();
-        self.tint(&panel, album.cover_art_id.as_deref(), panel_css, false);
+        tint(&panel, album.cover_art_id.as_deref(), panel_css, accents);
         let album = Album::new(album);
 
         let open_button = gtk::Button::builder()
@@ -429,7 +494,7 @@ impl LioHomePage {
     }
 
     /// Random albums as cards whose caption is tinted from the cover above it.
-    fn deeper_section(&self, albums: Vec<AlbumRow>) -> gtk::Widget {
+    fn deeper_section(&self, albums: Vec<AlbumRow>, accents: Option<&Accents>) -> gtk::Widget {
         let reshuffle = gtk::Button::builder()
             .child(
                 &adw::ButtonContent::builder()
@@ -511,7 +576,7 @@ impl LioHomePage {
                 album.name(),
                 album.artist()
             ))]);
-            self.tint(&card, album.cover_art_id(), card_css, true);
+            tint(&card, album.cover_art_id(), card_css, accents);
             attach_menu(&card, album.row());
             card.connect_clicked(move |_| open(&album));
             row.append(&card);
@@ -529,42 +594,6 @@ impl LioHomePage {
         section.append(&header);
         section.append(&scroller);
         section.upcast()
-    }
-
-    /// Tints `widget` from the vivid colour of its cover once that is known; greyscale
-    /// covers leave it untinted. `random` widgets lose theirs on reshuffle, the rest on reload.
-    fn tint(
-        &self,
-        widget: &impl IsA<gtk::Widget>,
-        cover_id: Option<&str>,
-        css: fn((u8, u8, u8)) -> String,
-        random: bool,
-    ) {
-        let Some(id) = cover_id.filter(|id| !id.is_empty()).map(str::to_owned) else {
-            return;
-        };
-        let widget = widget.clone().upcast::<gtk::Widget>();
-        glib::spawn_future_local(glib::clone!(
-            #[weak(rename_to = page)]
-            self,
-            #[weak]
-            widget,
-            async move {
-                if let Some(colour) = tint::cover_accent(&id).await
-                    && widget.parent().is_some()
-                {
-                    let tint = Tint::new(&widget);
-                    tint.set(&css(colour));
-                    let imp = page.imp();
-                    let tints = if random {
-                        &imp.random_tints
-                    } else {
-                        &imp.tints
-                    };
-                    tints.borrow_mut().push(tint);
-                }
-            }
-        ));
     }
 }
 
@@ -739,6 +768,98 @@ fn cover(cover_id: Option<&str>, size: i32, load: u32, class: &str) -> adw::Bin 
         .overflow(gtk::Overflow::Hidden)
         .css_classes([class])
         .build()
+}
+
+/// Holds a random section; a reshuffle crossfades the new one in (see [`swap`]).
+fn slot() -> gtk::Stack {
+    gtk::Stack::builder()
+        .transition_type(gtk::StackTransitionType::Crossfade)
+        .transition_duration(500)
+        .hhomogeneous(false)
+        .vhomogeneous(false)
+        .interpolate_size(true)
+        .hexpand(true)
+        .build()
+}
+
+/// Crossfades `slot` to `child` (or to nothing), dropping the old child once it has
+/// faded out.
+fn swap(slot: &gtk::Stack, child: Option<&gtk::Widget>) {
+    let old = slot.visible_child();
+    slot.set_visible(child.is_some());
+    if let Some(child) = child {
+        slot.add_child(child);
+        slot.set_visible_child(child);
+    }
+    let Some(old) = old else {
+        return;
+    };
+    let delay = std::time::Duration::from_millis(u64::from(slot.transition_duration()) + 50);
+    glib::timeout_add_local_once(
+        delay,
+        glib::clone!(
+            #[weak]
+            slot,
+            #[weak]
+            old,
+            move || {
+                if old.parent().as_ref() == Some(slot.upcast_ref()) {
+                    slot.remove(&old);
+                }
+            }
+        ),
+    );
+}
+
+/// Cover accents (by cover ID) looked up before building, so widgets start in their
+/// colour instead of changing to it.
+type Accents = HashMap<String, Option<(u8, u8, u8)>>;
+
+async fn accents(ids: Vec<Option<String>>) -> Accents {
+    let mut accents = Accents::new();
+    for id in ids.into_iter().flatten() {
+        // Repeats are cheap: `cover_accent` remembers each cover.
+        let colour = tint::cover_accent(&id).await;
+        accents.insert(id, colour);
+    }
+    accents
+}
+
+/// Tints `widget` from the vivid colour of its cover: at once from `accents` when the
+/// page looked it up ahead, else once it loads (the CSS fades it in). Greyscale covers
+/// leave it untinted. The tint lasts as long as the widget, so one fading out keeps it.
+fn tint(
+    widget: &impl IsA<gtk::Widget>,
+    cover_id: Option<&str>,
+    css: fn((u8, u8, u8)) -> String,
+    accents: Option<&Accents>,
+) {
+    let Some(id) = cover_id.filter(|id| !id.is_empty()).map(str::to_owned) else {
+        return;
+    };
+    let widget = widget.clone().upcast::<gtk::Widget>();
+    if let Some(accents) = accents {
+        if let Some(Some(colour)) = accents.get(&id) {
+            apply_tint(&widget, &css(*colour));
+        }
+        return;
+    }
+    glib::spawn_future_local(glib::clone!(
+        #[weak]
+        widget,
+        async move {
+            if let Some(colour) = tint::cover_accent(&id).await {
+                apply_tint(&widget, &css(colour));
+            }
+        }
+    ));
+}
+
+fn apply_tint(widget: &gtk::Widget, css: &str) {
+    let tint = Tint::new(widget);
+    tint.set(css);
+    let tint = std::cell::RefCell::new(Some(tint));
+    widget.connect_destroy(move |_| drop(tint.take()));
 }
 
 /// Lays `boxed` out vertically while the window is narrow.

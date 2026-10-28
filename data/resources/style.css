@@ -56,6 +56,16 @@ playerbar {
   padding: 6px;
 }
 
+/* Backgrounds tinted from a cover at runtime fade to a new cover's colour (the next
+   track, a reshuffle, a cover loading) instead of jumping. */
+playerbar,
+.now-playing,
+.home-panel,
+button.home-card {
+  transition: background-color 500ms ease-out, background-image 500ms ease-out,
+    color 500ms ease-out;
+}
+
 /* Home: panels and cards, tinted from their covers at runtime (see home_page.rs). */
 .home-panel {
   border-radius: 18px;
