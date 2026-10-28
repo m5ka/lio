@@ -61,7 +61,8 @@ playerbar {
 playerbar,
 .now-playing,
 .home-panel,
-button.home-card {
+button.home-card,
+.home-row-swatch {
   transition: background-color 500ms ease-out, background-image 500ms ease-out,
     color 500ms ease-out;
 }
@@ -90,6 +91,18 @@ button.home-card {
 
 button.home-card:hover {
   filter: brightness(1.08);
+}
+
+/* Home lists: the cover with even padding round it, in a swatch of its colour where
+   the row has one. */
+.home-row-swatch {
+  padding: 8px;
+}
+
+/* Rows have 2px of padding by default, which would leave a rim of row background
+   round the swatch; it is a part of the row, edge to edge. */
+list.home-album-list > row {
+  padding: 0;
 }
 
 .artist-link {

@@ -1,5 +1,6 @@
 //! Home page: a Library Mix panel and the latest addition (both tinted from their
-//! covers), Recently Played and Recently Added side by side, and a random Dig Deeper row.
+//! covers), Recently Played and Recently Added as lists side by side, and a random Dig
+//! Deeper row.
 
 use std::collections::HashMap;
 
@@ -15,7 +16,7 @@ use crate::covers::{SIZE_GRID, SIZE_ROW};
 use crate::models::{Album, format_duration};
 use crate::playback_controller::QueueOrigin;
 use crate::widgets::tint::{self, Tint};
-use crate::widgets::{LioAlbumGrid, LioAlbumPage, LioAlbumTile, cover_view, item_menu};
+use crate::widgets::{LioAlbumGrid, LioAlbumPage, cover_view, item_menu};
 
 /// Albums in Recently Played, and in Recently Added (after the one in Just Added).
 const LIST_SIZE: usize = 6;
@@ -26,7 +27,6 @@ const DEEPER_SIZE: usize = 10;
 /// Cover edges in pixels.
 const FAN_COVER: i32 = 150;
 const JUST_ADDED_COVER: i32 = 120;
-const GRID_COVER: i32 = 128;
 const CARD_COVER: i32 = 160;
 
 mod imp {
@@ -167,8 +167,9 @@ impl LioHomePage {
             self.build(data, mix, deeper, None);
             return;
         }
-        let ids = [&data.added[0]]
-            .into_iter()
+        let ids = data
+            .added
+            .iter()
             .chain(mix.first())
             .chain(&deeper)
             .map(|a| a.cover_art_id.clone())
@@ -225,7 +226,7 @@ impl LioHomePage {
             lists.append(&played_section(played));
         }
         if !added.is_empty() {
-            lists.append(&added_section(added));
+            lists.append(&added_section(added, accents));
         }
         follow_narrow(&lists);
         if lists.first_child().is_some() {
@@ -604,31 +605,102 @@ impl Default for LioHomePage {
 }
 
 fn played_section(albums: Vec<AlbumRow>) -> gtk::Widget {
+    let list = album_list(albums, |a| a.played_at, |_, _, _| {});
+    let see_all = see_all(
+        &gettext("Recently Played"),
+        AlbumFilter::RecentlyPlayed,
+        AlbumSort::RecentlyPlayed,
+    );
+    titled(&header(&gettext("Recently Played"), None, &see_all), &list)
+}
+
+/// A list rather than a grid, so it lines up with Recently Played beside it. Each row is
+/// a whole new album, so its cover sits in a swatch of its colour and the row says how
+/// many songs it has.
+fn added_section(albums: Vec<AlbumRow>, accents: Option<&Accents>) -> gtk::Widget {
+    let list = album_list(
+        albums,
+        |a| Some(a.created_at).filter(|&at| at > 0),
+        |swatch, details, album| {
+            tint(swatch, album.cover_art_id(), swatch_css, accents);
+            let songs = album.row().song_count;
+            if songs > 0 {
+                details.append(
+                    &gtk::Label::builder()
+                        .label(
+                            ngettext("{} song", "{} songs", songs as u32)
+                                .replace("{}", &songs.to_string()),
+                        )
+                        .css_classes(["caption", "dim-label"])
+                        .build(),
+                );
+            }
+        },
+    );
+    let see_all = see_all(
+        &gettext("Recently Added"),
+        AlbumFilter::All,
+        AlbumSort::RecentlyAdded,
+    );
+    titled(&header(&gettext("Recently Added"), None, &see_all), &list)
+}
+
+/// Albums as rows in two parts: the cover in a swatch with even padding round it, then
+/// title and artist, anything `extra` adds (it gets the swatch and the box the details
+/// go in), the day of `when` (played or added) and a play button.
+fn album_list(
+    albums: Vec<AlbumRow>,
+    when: fn(&AlbumRow) -> Option<i64>,
+    extra: impl Fn(&adw::Bin, &gtk::Box, &Album),
+) -> gtk::ListBox {
     let list = gtk::ListBox::builder()
         .selection_mode(gtk::SelectionMode::None)
         .valign(gtk::Align::Start)
-        .css_classes(["boxed-list"])
+        .overflow(gtk::Overflow::Hidden)
+        .css_classes(["boxed-list", "home-album-list"])
         .build();
-    for album in albums {
-        let album = Album::new(album);
-        let row = adw::ActionRow::builder()
-            .title(album.name())
-            .subtitle(album.artist())
-            .use_markup(false)
-            .title_lines(1)
-            .subtitle_lines(1)
-            .activatable(true)
+    let albums: Vec<Album> = albums.into_iter().map(Album::new).collect();
+    for album in &albums {
+        let swatch = adw::Bin::builder()
+            .child(&cover(album.cover_art_id(), 40, SIZE_ROW, "cover-small"))
+            .css_classes(["home-row-swatch"])
             .build();
-        row.add_prefix(&cover(album.cover_art_id(), 40, SIZE_ROW, "cover-small"));
-        if let Some(when) = album.row().played_at.map(played_when) {
-            row.add_suffix(
+        let titles = gtk::Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .valign(gtk::Align::Center)
+            .hexpand(true)
+            .build();
+        for (text, classes) in [
+            (album.name().to_owned(), &[][..]),
+            (album.artist(), &["caption", "dim-label"][..]),
+        ] {
+            titles.append(
                 &gtk::Label::builder()
-                    .label(when)
+                    .label(text)
+                    .xalign(0.0)
+                    .max_width_chars(1)
+                    .ellipsize(gtk::pango::EllipsizeMode::End)
+                    .css_classes(classes.to_vec())
+                    .build(),
+            );
+        }
+        let details = gtk::Box::builder()
+            .spacing(12)
+            .margin_start(12)
+            .margin_end(6)
+            .hexpand(true)
+            .build();
+        details.append(&titles);
+        extra(&swatch, &details, album);
+        if let Some(day) = when(album.row()).map(relative_day) {
+            details.append(
+                &gtk::Label::builder()
+                    .label(day)
                     .css_classes(["caption", "dim-label"])
                     .build(),
             );
         }
-        row.add_suffix(
+        details.append(
             &gtk::Button::builder()
                 .icon_name("media-playback-start-symbolic")
                 .tooltip_text(gettext("Play"))
@@ -638,52 +710,30 @@ fn played_section(albums: Vec<AlbumRow>) -> gtk::Widget {
                 .css_classes(["flat", "circular", "play-icon"])
                 .build(),
         );
+        let content = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+        content.append(&swatch);
+        content.append(&details);
+        let row = gtk::ListBoxRow::builder()
+            .child(&content)
+            .activatable(true)
+            .build();
+        row.update_property(&[gtk::accessible::Property::Label(&format!(
+            "{}, {}",
+            album.name(),
+            album.artist()
+        ))]);
         attach_menu(&row, album.row());
-        row.connect_activated(move |_| open(&album));
         list.append(&row);
     }
-    let see_all = see_all(
-        &gettext("Recently Played"),
-        AlbumFilter::RecentlyPlayed,
-        AlbumSort::RecentlyPlayed,
-    );
-    titled(&header(&gettext("Recently Played"), None, &see_all), &list)
-}
-
-fn added_section(albums: Vec<AlbumRow>) -> gtk::Widget {
-    let grid = gtk::FlowBox::builder()
-        .selection_mode(gtk::SelectionMode::None)
-        .homogeneous(true)
-        .min_children_per_line(2)
-        .max_children_per_line(3)
-        .valign(gtk::Align::Start)
-        .css_classes(["album-grid"])
-        .build();
-    for album in albums {
-        let tile = LioAlbumTile::new();
-        tile.set_cover_size(GRID_COVER);
-        tile.bind(&Album::new(album));
-        item_menu::attach(&tile, |tile: &LioAlbumTile| {
-            tile.album()
-                .map(|a| item_menu::Target::Album(a.id().to_owned(), a.row().artist_id.clone()))
-        });
-        grid.append(&tile);
-    }
-    grid.connect_child_activated(|_, child| {
-        if let Some(album) = child
-            .child()
-            .and_downcast::<LioAlbumTile>()
-            .and_then(|t| t.album())
+    list.connect_row_activated(move |_, row| {
+        if let Some(album) = usize::try_from(row.index())
+            .ok()
+            .and_then(|i| albums.get(i))
         {
-            open(&album);
+            open(album);
         }
     });
-    let see_all = see_all(
-        &gettext("Recently Added"),
-        AlbumFilter::All,
-        AlbumSort::RecentlyAdded,
-    );
-    titled(&header(&gettext("Recently Added"), None, &see_all), &grid)
+    list
 }
 
 /// A section heading with an optional subtitle and a button at the end.
@@ -907,8 +957,17 @@ fn card_css((r, g, b): (u8, u8, u8)) -> String {
     )
 }
 
+/// The swatch round a Recently Added row's cover: one flat shade of the cover's colour.
+fn swatch_css((r, g, b): (u8, u8, u8)) -> String {
+    format!(
+        "background-image: linear-gradient(
+           oklab(from rgb({r},{g},{b}) max(min(l, 0.4), 0.3) a b),
+           oklab(from rgb({r},{g},{b}) max(min(l, 0.4), 0.3) a b));"
+    )
+}
+
 /// "Today", "Yesterday", a weekday within the last week, else the date.
-fn played_when(at: i64) -> String {
+fn relative_day(at: i64) -> String {
     let (Ok(then), Ok(now)) = (
         glib::DateTime::from_unix_local(at),
         glib::DateTime::now_local(),
